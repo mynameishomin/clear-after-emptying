@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Frame from "@/components/frame";
+import { getNowDate } from "@/functions";
+import Link from "next/link";
+import Navigation from "@/components/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,10 +18,24 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const { year, month, day, dateString } = getNowDate();
     return (
         <html lang="ko">
             <body className={inter.className}>
-                <Frame>{children}</Frame>
+                <div className="h-screen w-screen bg-main-background bg-cover bg-bottom	">
+                    <div className="h-full w-full backdrop-blur-sm">
+                        <header className="fixed p-6">
+                            <time
+                                className="block text-xs"
+                                dateTime={`${year}-${month}-${day}`}
+                            >
+                                {month}월 {day}일
+                            </time>
+                            <Navigation />
+                        </header>
+                        {children}
+                    </div>
+                </div>
             </body>
         </html>
     );

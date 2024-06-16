@@ -3,8 +3,21 @@ import Button from "@/components/button";
 import Image from "next/image";
 import { StuffProps } from "@/type";
 import { getRandomArrayItem, getStuffList } from "@/functions";
+import { motion } from "framer-motion";
 
-export const TodayStuff = ({ title, summary, src }: StuffProps) => {
+interface TodayStuffCardProps extends StuffProps {
+    onClick: () => void;
+}
+
+export const TodayStuffCard = ({
+    title,
+    summary,
+    src,
+    isEmpty,
+    onClick,
+}: TodayStuffCardProps) => {
+    if (isEmpty) return null;
+
     return (
         <div className="flex flex-col gap-4 w-full h-full p-4 rounded-sm bg-white max-w-lg shadow-lg">
             <div className="max-w-52">
@@ -23,7 +36,7 @@ export const TodayStuff = ({ title, summary, src }: StuffProps) => {
                 </div>
 
                 <div className="flex flex-col mt-auto gap-2">
-                    <Button text="버렸어요" />
+                    <Button text="버렸어요." onClick={() => onClick()} />
                 </div>
             </div>
         </div>
@@ -32,6 +45,22 @@ export const TodayStuff = ({ title, summary, src }: StuffProps) => {
 
 export const TodayStuffList = () => {
     const [todayStuff, setTodayStuff] = useState<null | StuffProps[]>(null);
+
+    const emptyingStuff = (index: number) => {
+        return () => {
+            setTodayStuff((prevTodayStuff) => {
+                if (!prevTodayStuff) return null;
+                const newTodayStuff = [...prevTodayStuff];
+                newTodayStuff[index].isEmpty = true;
+                localStorage.setItem(
+                    "todayStuff",
+                    JSON.stringify(newTodayStuff)
+                );
+                return newTodayStuff;
+            });
+        };
+    };
+
     useEffect(() => {
         (async () => {
             const storageTodayStuff = localStorage.getItem("todayStuff");
@@ -44,6 +73,7 @@ export const TodayStuffList = () => {
                     stuffList,
                     3
                 );
+                randomStuff.forEach((item) => (item.isEmpty = false));
 
                 setTodayStuff(randomStuff);
                 localStorage.setItem("todayStuff", JSON.stringify(randomStuff));
@@ -51,18 +81,46 @@ export const TodayStuffList = () => {
         })();
     }, []);
     return (
-        <ul className="flex gap-4">
+        <motion.ul
+            className="flex gap-4"
+            initial="hidden"
+            animate="visible"
+            variants={{
+                hidden: { opacity: 1, scale: 0 },
+                visible: {
+                    opacity: 1,
+                    scale: 1,
+                    transition: {
+                        delayChildren: 0.3,
+                        staggerChildren: 0.2,
+                    },
+                },
+            }}
+        >
             {todayStuff?.map((item: StuffProps, index: number) => {
                 return (
-                    <li key={index}>
-                        <TodayStuff
+                    <motion.li
+                        key={index}
+                        layout
+                        layoutId={index + "_"}
+                        variants={{
+                            hidden: { y: 20, opacity: 0 },
+                            visible: {
+                                y: 0,
+                                opacity: 1,
+                            },
+                        }}
+                    >
+                        <TodayStuffCard
                             title={item.title}
                             summary={item.summary}
                             src={item.src}
+                            isEmpty={item.isEmpty}
+                            onClick={emptyingStuff(index)}
                         />
-                    </li>
+                    </motion.li>
                 );
             })}
-        </ul>
+        </motion.ul>
     );
 };

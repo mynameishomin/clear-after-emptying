@@ -16,7 +16,7 @@ export const getRandomArrayItem = <T extends {}>(array: T[], count: number) => {
 
     for (let i = 0; i < count; i++) {
         const randomIndex = Math.floor(Math.random() * arrayLength);
-        newArray.push(array[randomIndex]);
+        newArray.push({ ...array[randomIndex] });
     }
 
     return newArray;
