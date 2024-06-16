@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 
 const menus = [
     { name: "버릴 물건", path: "/" },
-    { name: "버린 물건", path: "/stuff-history" },
+    { name: "버린 물건", path: "/history" },
 ];
 
 export default function Navigation() {

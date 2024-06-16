@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import Button from "@/components/button";
 import Image from "next/image";
-import { StuffProps } from "@/type";
-import { getRandomArrayItem, getStuffList } from "@/functions";
+import { StuffHistoryProps, StuffProps } from "@/type";
+import { getNowDate, getRandomArrayItem, getStuffList } from "@/functions";
 import { motion } from "framer-motion";
 
 interface TodayStuffCardProps extends StuffProps {
@@ -13,11 +13,8 @@ export const TodayStuffCard = ({
     title,
     summary,
     src,
-    isEmpty,
     onClick,
 }: TodayStuffCardProps) => {
-    if (isEmpty) return null;
-
     return (
         <div className="flex flex-col gap-4 w-full h-full p-4 rounded-sm bg-white max-w-lg shadow-lg">
             <div className="max-w-52">
@@ -45,6 +42,7 @@ export const TodayStuffCard = ({
 
 export const TodayStuffList = () => {
     const [todayStuff, setTodayStuff] = useState<null | StuffProps[]>(null);
+    const { dateString } = getNowDate();
 
     const emptyingStuff = (index: number) => {
         return () => {
@@ -56,6 +54,22 @@ export const TodayStuffList = () => {
                     "todayStuff",
                     JSON.stringify(newTodayStuff)
                 );
+
+                const storageStuffHistory =
+                    localStorage.getItem("stuffHistory");
+                if (storageStuffHistory) {
+                    const stuffHistory = JSON.parse(storageStuffHistory);
+                    console.log(stuffHistory);
+                    if (!stuffHistory[dateString])
+                        stuffHistory[dateString] = [];
+                    stuffHistory[dateString].push(newTodayStuff[index]);
+
+                    localStorage.setItem(
+                        "stuffHistory",
+                        JSON.stringify(stuffHistory)
+                    );
+                }
+
                 return newTodayStuff;
             });
         };
@@ -81,46 +95,53 @@ export const TodayStuffList = () => {
         })();
     }, []);
     return (
-        <motion.ul
-            className="flex gap-4"
-            initial="hidden"
-            animate="visible"
-            variants={{
-                hidden: { opacity: 1, scale: 0 },
-                visible: {
-                    opacity: 1,
-                    scale: 1,
-                    transition: {
-                        delayChildren: 0.3,
-                        staggerChildren: 0.2,
-                    },
-                },
-            }}
-        >
-            {todayStuff?.map((item: StuffProps, index: number) => {
-                return (
-                    <motion.li
-                        key={index}
-                        layout
-                        layoutId={index + "_"}
-                        variants={{
-                            hidden: { y: 20, opacity: 0 },
-                            visible: {
-                                y: 0,
-                                opacity: 1,
+        <div>
+            {todayStuff?.every((stuff) => stuff.isEmpty) ? (
+                <div>다 비움</div>
+            ) : (
+                <motion.ul
+                    className="flex gap-4"
+                    initial="hidden"
+                    animate="visible"
+                    exit={{ opacity: 0 }}
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: {
+                            opacity: 1,
+                            transition: {
+                                delayChildren: 0.3,
+                                staggerChildren: 0.2,
                             },
-                        }}
-                    >
-                        <TodayStuffCard
-                            title={item.title}
-                            summary={item.summary}
-                            src={item.src}
-                            isEmpty={item.isEmpty}
-                            onClick={emptyingStuff(index)}
-                        />
-                    </motion.li>
-                );
-            })}
-        </motion.ul>
+                        },
+                    }}
+                >
+                    {todayStuff?.map((item: StuffProps, index: number) => {
+                        if (item.isEmpty) return null;
+                        return (
+                            <motion.li
+                                key={index}
+                                layout
+                                layoutId={index + "_"}
+                                variants={{
+                                    hidden: { y: 20, opacity: 0 },
+                                    visible: {
+                                        y: 0,
+                                        opacity: 1,
+                                    },
+                                }}
+                            >
+                                <TodayStuffCard
+                                    title={item.title}
+                                    summary={item.summary}
+                                    src={item.src}
+                                    isEmpty={item.isEmpty}
+                                    onClick={emptyingStuff(index)}
+                                />
+                            </motion.li>
+                        );
+                    })}
+                </motion.ul>
+            )}
+        </div>
     );
 };

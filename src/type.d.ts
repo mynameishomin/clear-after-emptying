@@ -5,6 +5,6 @@ export interface StuffProps {
     isEmpty?: boolean;
 }
 
-export interface StuffHistoryProps {
+export interface StuffHistoryProps extends StuffProps {
     [key: string]: string;
 }

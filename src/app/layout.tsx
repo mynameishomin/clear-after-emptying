@@ -33,7 +33,9 @@ export default function RootLayout({
                             </time>
                             <Navigation />
                         </header>
-                        {children}
+                        <div className="flex flex-col justify-center items-center w-full h-full">
+                            <div className="relative px-6">{children}</div>
+                        </div>
                     </div>
                 </div>
             </body>
