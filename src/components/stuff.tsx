@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import Button from "@/components/button";
 import Image from "next/image";
 import { StuffHistoryProps, StuffProps } from "@/type";
-import { getNowDate, getRandomArrayItem, getStuffList } from "@/functions";
-import { motion } from "framer-motion";
+import { getNowDate, getRandomArrayItem } from "@/functions";
+import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
 
 interface TodayStuffCardProps extends StuffProps {
@@ -45,6 +45,29 @@ export const TodayStuffList = () => {
     const [todayStuff, setTodayStuff] = useState<null | StuffProps[]>(null);
     const { dateString } = getNowDate();
 
+    const getStuffList = async (): Promise<StuffProps[]> => {
+        const response = await fetch("/stuff.json");
+        const stuffList = await response.json();
+        return stuffList.stuff;
+    };
+
+    const getTodayStuff = async () => {
+        const stuffList = await getStuffList();
+        const randomStuff = getRandomArrayItem<StuffProps>(stuffList, 3);
+        randomStuff.forEach((item) => {
+            item.isEmpty = false;
+            item.emptyDate = "";
+        });
+
+        return randomStuff;
+    };
+
+    const updateTodayStuff = async () => {
+        const todayStuffList = await getTodayStuff();
+        setTodayStuff(todayStuffList);
+        localStorage.setItem("todayStuff", JSON.stringify(todayStuffList));
+    };
+
     const emptyingStuff = (index: number) => {
         return () => {
             setTodayStuff((prevTodayStuff) => {
@@ -77,70 +100,105 @@ export const TodayStuffList = () => {
     useEffect(() => {
         (async () => {
             const storageTodayStuff = localStorage.getItem("todayStuff");
-            const stuffList = (await getStuffList()) as StuffProps[];
 
             if (storageTodayStuff) {
                 setTodayStuff(JSON.parse(storageTodayStuff));
             } else {
-                const randomStuff = getRandomArrayItem<StuffProps>(
-                    stuffList,
-                    3
+                const todayStuffList = await getTodayStuff();
+                setTodayStuff(todayStuffList);
+                localStorage.setItem(
+                    "todayStuff",
+                    JSON.stringify(todayStuffList)
                 );
-                randomStuff.forEach((item) => (item.isEmpty = false));
-
-                setTodayStuff(randomStuff);
-                localStorage.setItem("todayStuff", JSON.stringify(randomStuff));
             }
         })();
     }, []);
     return (
-        <div>
+        <AnimatePresence>
             {todayStuff?.every((stuff) => stuff.isEmpty) ? (
-                <div>다 비움</div>
-            ) : (
-                <motion.ul
-                    className="flex justify-center gap-4"
-                    initial="hidden"
-                    animate="visible"
-                    exit={{ opacity: 0 }}
-                    variants={{
-                        hidden: { opacity: 0 },
-                        visible: {
-                            opacity: 1,
-                            transition: {
-                                delayChildren: 0.3,
-                                staggerChildren: 0.2,
-                            },
+                <motion.div
+                    className="max-w-80"
+                    initial={{ opacity: 0 }}
+                    animate={{
+                        opacity: 1,
+                        transition: {
+                            delay: 0.6,
+                            duration: 0.6,
                         },
                     }}
+                    exit={{
+                        opacity: 0,
+                        transition: {
+                            duration: 0.6,
+                        },
+                    }}
+                    key="empty-message"
                 >
-                    {todayStuff?.map((item: StuffProps, index: number) => {
-                        if (item.isEmpty) return null;
-                        return (
-                            <motion.li
-                                key={index}
-                                layout
-                                layoutId={index + "_"}
-                                variants={{
-                                    hidden: { y: 20, opacity: 0 },
-                                    visible: {
-                                        y: 0,
-                                        opacity: 1,
-                                    },
-                                }}
-                            >
-                                <TodayStuffCard
-                                    title={item.title}
-                                    summary={item.summary}
-                                    src={item.src}
-                                    isEmpty={item.isEmpty}
-                                    onClick={emptyingStuff(index)}
-                                />
-                            </motion.li>
-                        );
-                    })}
-                </motion.ul>
+                    <h2 className="mb-2 text-2xl font-bold">
+                        오늘도 비움으로 채운 당신
+                    </h2>
+                    <p className="mb-4">
+                        미니멀리즘과 관련된 짧은 글... Lorem ipsum dolor sit
+                        amet consectetur adipisicing elit. Vitae, tempore
+                        voluptatibus laboriosam aliquam consequuntur rerum!
+                        Nobis dolor suscipit odit repellendus eos magni
+                        doloremque soluta reiciendis? Possimus distinctio
+                        provident labore neque!
+                    </p>
+                    <Button
+                        text="더 비울 수 있어요"
+                        onClick={() => {
+                            updateTodayStuff();
+                        }}
+                    />
+                </motion.div>
+            ) : (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    exit={{ opacity: 0 }}
+                    key="today-stuff-list"
+                >
+                    <motion.ul
+                        className="flex justify-center gap-4"
+                        initial={{ opacity: 0 }}
+                        animate={{
+                            opacity: 1,
+                            transition: {
+                                staggerChildren: 0.2,
+                            },
+                        }}
+                        exit={{ opacity: 0 }}
+                    >
+                        {todayStuff?.map((item: StuffProps, index: number) => {
+                            if (item.isEmpty) return null;
+                            console.log(index);
+                            return (
+                                <motion.li
+                                    key={index + "ssss"}
+                                    layout
+                                    variants={{
+                                        hidden: { y: 20, opacity: 0 },
+                                        visible: {
+                                            y: 0,
+                                            opacity: 1,
+                                        },
+                                    }}
+                                >
+                                    <TodayStuffCard
+                                        title={item.title}
+                                        summary={item.summary}
+                                        src={item.src}
+                                        isEmpty={item.isEmpty}
+                                        onClick={emptyingStuff(index)}
+                                    />
+                                </motion.li>
+                            );
+                        })}
+                    </motion.ul>
+                </motion.div>
             )}
-        </div>
+        </AnimatePresence>
     );
 };

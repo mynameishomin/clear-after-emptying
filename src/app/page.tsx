@@ -1,6 +1,5 @@
 "use client";
 import { TodayStuffList } from "@/components/stuff";
-import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 
 export default function Home() {
@@ -11,8 +10,8 @@ export default function Home() {
         }
     }, []);
     return (
-        <AnimatePresence>
+        <div>
             <TodayStuffList />
-        </AnimatePresence>
+        </div>
     );
 }

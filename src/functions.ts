@@ -21,9 +21,3 @@ export const getRandomArrayItem = <T extends {}>(array: T[], count: number) => {
 
     return newArray;
 };
-
-export const getStuffList = async (): Promise<StuffProps[]> => {
-    const response = await fetch("/stuff.json");
-    const stuffList = await response.json();
-    return stuffList.stuff;
-};
