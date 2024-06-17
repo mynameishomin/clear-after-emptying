@@ -59,11 +59,9 @@ export const TodayStuffList = () => {
                 const storageStuffHistory =
                     localStorage.getItem("stuffHistory");
                 if (storageStuffHistory) {
+                    newTodayStuff[index].emptyDate = dateString;
                     const stuffHistory = JSON.parse(storageStuffHistory);
-                    console.log(stuffHistory);
-                    if (!stuffHistory[dateString])
-                        stuffHistory[dateString] = [];
-                    stuffHistory[dateString].push(newTodayStuff[index]);
+                    stuffHistory.push(newTodayStuff[index]);
 
                     localStorage.setItem(
                         "stuffHistory",
@@ -101,7 +99,7 @@ export const TodayStuffList = () => {
                 <div>다 비움</div>
             ) : (
                 <motion.ul
-                    className="flex gap-4"
+                    className="flex justify-center gap-4"
                     initial="hidden"
                     animate="visible"
                     exit={{ opacity: 0 }}

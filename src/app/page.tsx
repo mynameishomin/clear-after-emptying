@@ -7,7 +7,7 @@ export default function Home() {
     useEffect(() => {
         const storageStuffHistory = localStorage.getItem("stuffHistory");
         if (!storageStuffHistory) {
-            localStorage.setItem("stuffHistory", JSON.stringify({}));
+            localStorage.setItem("stuffHistory", JSON.stringify([]));
         }
     }, []);
     return (

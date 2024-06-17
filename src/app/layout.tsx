@@ -24,7 +24,7 @@ export default function RootLayout({
             <body className={inter.className}>
                 <div className="h-screen w-screen bg-main-background bg-cover bg-bottom	">
                     <div className="h-full w-full backdrop-blur-sm">
-                        <header className="fixed p-6">
+                        <header className="fixed w-full p-6 z-10">
                             <time
                                 className="block text-xs"
                                 dateTime={`${year}-${month}-${day}`}
@@ -33,8 +33,10 @@ export default function RootLayout({
                             </time>
                             <Navigation />
                         </header>
-                        <div className="flex flex-col justify-center items-center w-full h-full">
-                            <div className="relative px-6">{children}</div>
+                        <div className="flex flex-col justify-center items-center w-full h-full pb-10">
+                            <div className="relative flex justify-center w-full px-6 mt-28 overflow-auto">
+                                {children}
+                            </div>
                         </div>
                     </div>
                 </div>

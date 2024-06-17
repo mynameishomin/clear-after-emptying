@@ -1,11 +1,11 @@
 "use client";
-import { StuffHistoryProps } from "@/type";
+import Image from "next/image";
+import { Card } from "@/components/card";
+import { StuffHistoryProps, StuffProps } from "@/type";
 import { useEffect, useState } from "react";
 
 export default function History() {
-    const [stuffHistory, setStuffHistory] = useState<null | StuffHistoryProps>(
-        null
-    );
+    const [stuffHistory, setStuffHistory] = useState<null | StuffProps[]>(null);
 
     useEffect(() => {
         const storageStuffHistory = localStorage.getItem("stuffHistory");
@@ -19,11 +19,37 @@ export default function History() {
 
     if (!stuffHistory) return <div></div>;
     return (
-        <ul>
-            {Object.keys(stuffHistory).map((date, index: number) => {
+        <ul className="grid grid-cols-4 gap-4 w-fit">
+            {stuffHistory.map((stuff: StuffProps, index: number) => {
                 return (
-                    <li key={index}>
-                        <h2 className="text-xs">{date}</h2>
+                    <li className="max-w-52" key={index}>
+                        <Card>
+                            <div className="flex flex-col gap-4 h-full">
+                                <Image
+                                    src={stuff.src}
+                                    alt={stuff.title}
+                                    width={500}
+                                    height={500}
+                                    className="w-full h-full object-cover rounded-lg"
+                                />
+                                <div className="flex flex-col mt-auto">
+                                    <div className="mb-2">
+                                        <h3 className="text-lg font-bold">
+                                            {stuff.title}
+                                        </h3>
+                                        <p className="text-sm">
+                                            {stuff.summary}
+                                        </p>
+                                    </div>
+                                </div>
+                                <time
+                                    className="block text-xs text-right"
+                                    dateTime={stuff.emptyDate}
+                                >
+                                    {stuff.emptyDate}
+                                </time>
+                            </div>
+                        </Card>
                     </li>
                 );
             })}
