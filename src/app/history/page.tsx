@@ -12,6 +12,7 @@ export default function History() {
 
         if (storageStuffHistory) {
             const test = JSON.parse(storageStuffHistory) as StuffHistoryProps;
+            console.log(test);
             setStuffHistory(JSON.parse(storageStuffHistory));
         }
     }, []);

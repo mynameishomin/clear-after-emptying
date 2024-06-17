@@ -4,6 +4,7 @@ import Image from "next/image";
 import { StuffHistoryProps, StuffProps } from "@/type";
 import { getNowDate, getRandomArrayItem, getStuffList } from "@/functions";
 import { motion } from "framer-motion";
+import { Card } from "@/components/card";
 
 interface TodayStuffCardProps extends StuffProps {
     onClick: () => void;
@@ -16,27 +17,27 @@ export const TodayStuffCard = ({
     onClick,
 }: TodayStuffCardProps) => {
     return (
-        <div className="flex flex-col gap-4 w-full h-full p-4 rounded-sm bg-white max-w-lg shadow-lg">
-            <div className="max-w-52">
+        <Card>
+            <div className="flex flex-col gap-4 h-full">
                 <Image
                     src={src}
                     alt={title}
                     width={500}
                     height={500}
-                    className="w-full h-full object-cover rounded-sm"
+                    className="w-full h-full object-cover rounded-lg"
                 />
-            </div>
-            <div className="flex flex-col mt-auto">
-                <div className="mb-2">
-                    <h3 className="text-lg font-bold">{title}</h3>
-                    <p className="text-sm">{summary}</p>
-                </div>
+                <div className="flex flex-col mt-auto">
+                    <div className="mb-2">
+                        <h3 className="text-lg font-bold">{title}</h3>
+                        <p className="text-sm">{summary}</p>
+                    </div>
 
-                <div className="flex flex-col mt-auto gap-2">
-                    <Button text="버렸어요." onClick={() => onClick()} />
+                    <div className="flex flex-col mt-auto gap-2">
+                        <Button text="버렸어요." onClick={() => onClick()} />
+                    </div>
                 </div>
             </div>
-        </div>
+        </Card>
     );
 };
 

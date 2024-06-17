@@ -3,6 +3,7 @@ export interface StuffProps {
     summary: string;
     src: string;
     isEmpty?: boolean;
+    emptyDate?: string;
 }
 
 export interface StuffHistoryProps extends StuffProps {
