@@ -23,8 +23,8 @@ export default function RootLayout({
         <html lang="ko">
             <body className={inter.className}>
                 <div className="h-screen w-screen bg-main-background bg-cover bg-bottom	">
-                    <div className="h-full w-full backdrop-blur-sm">
-                        <header className="fixed w-full p-6 z-10">
+                    <div className="flex flex-col h-full w-full backdrop-blur-sm">
+                        <header className="w-full p-6 z-10">
                             <time
                                 className="block text-xs"
                                 dateTime={`${year}-${month}-${day}`}
@@ -33,8 +33,8 @@ export default function RootLayout({
                             </time>
                             <Navigation />
                         </header>
-                        <div className="flex flex-col justify-center items-center w-full h-full pb-10">
-                            <div className="relative flex justify-center w-full px-6 mt-28 overflow-auto">
+                        <div className="flex flex-col justify-center items-center grow w-full overflow-auto">
+                            <div className="relative flex justify-center w-full h-full px-6">
                                 {children}
                             </div>
                         </div>

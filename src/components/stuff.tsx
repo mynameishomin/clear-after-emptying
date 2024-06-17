@@ -33,7 +33,7 @@ export const TodayStuffCard = ({
                     </div>
 
                     <div className="flex flex-col mt-auto gap-2">
-                        <Button text="버렸어요." onClick={() => onClick()} />
+                        <Button text="버렸어요" onClick={() => onClick()} />
                     </div>
                 </div>
             </div>
@@ -118,11 +118,12 @@ export const TodayStuffList = () => {
             {todayStuff?.every((stuff) => stuff.isEmpty) ? (
                 <motion.div
                     className="max-w-80"
-                    initial={{ opacity: 0 }}
+                    initial={{ opacity: 0, position: "absolute" }}
                     animate={{
+                        position: "relative",
                         opacity: 1,
                         transition: {
-                            delay: 0.6,
+                            delay: 1.2,
                             duration: 0.6,
                         },
                     }}
@@ -154,22 +155,19 @@ export const TodayStuffList = () => {
                 </motion.div>
             ) : (
                 <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
+                    initial={{ opacity: 0, position: "absolute" }}
+                    animate={{ opacity: 1, position: "relative" }}
+                    transition={{ delay: 0.9 }}
                     exit={{ opacity: 0 }}
                     key="today-stuff-list"
                 >
                     <motion.ul
                         className="flex justify-center gap-4"
-                        initial={{ opacity: 0 }}
                         animate={{
-                            opacity: 1,
                             transition: {
                                 staggerChildren: 0.2,
                             },
                         }}
-                        exit={{ opacity: 0 }}
                     >
                         {todayStuff?.map((item: StuffProps, index: number) => {
                             if (item.isEmpty) return null;
@@ -178,13 +176,8 @@ export const TodayStuffList = () => {
                                 <motion.li
                                     key={index + "ssss"}
                                     layout
-                                    variants={{
-                                        hidden: { y: 20, opacity: 0 },
-                                        visible: {
-                                            y: 0,
-                                            opacity: 1,
-                                        },
-                                    }}
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
                                 >
                                     <TodayStuffCard
                                         title={item.title}
