@@ -9,7 +9,7 @@ export default function History() {
     const [stuffHistory, setStuffHistory] = useState<null | StuffProps[]>(null);
 
     const resetStuffHistory = () => {
-        localStorage.setItem("stuffHistory", []);
+        localStorage.setItem("stuffHistory", JSON.stringify([]));
         setStuffHistory([]);
     };
 

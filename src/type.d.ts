@@ -9,3 +9,8 @@ export interface StuffProps {
 export interface StuffHistoryProps extends StuffProps {
     [key: string]: string;
 }
+
+export interface TodayStuffProps {
+    date: string;
+    stuff: StuffProps[];
+}
