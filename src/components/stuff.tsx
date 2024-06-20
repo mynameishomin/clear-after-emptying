@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
 
 interface TodayStuffCardProps extends StuffProps {
-    onClick: () => void;
+    onClick: (isEmpty: boolean) => void;
 }
 
 export const TodayStuffCard = ({
@@ -35,7 +35,10 @@ export const TodayStuffCard = ({
                         </div>
 
                         <div className="flex flex-col mt-auto gap-2">
-                            <Button text="버렸어요" onClick={() => onClick()} />
+                            <Button
+                                text="남길래요"
+                                onClick={() => onClick(false)}
+                            />
                         </div>
                     </motion.div>
                 </motion.div>
@@ -58,7 +61,10 @@ export const TodayStuffCard = ({
                         </div>
 
                         <div className="flex flex-col mt-auto gap-2">
-                            <Button text="버렸어요" onClick={() => onClick()} />
+                            <Button
+                                text="버릴래요"
+                                onClick={() => onClick(true)}
+                            />
                         </div>
                     </div>
                 </motion.div>
@@ -88,21 +94,13 @@ export const TodayStuffList = () => {
     const [todayStuff, setTodayStuff] = useState<null | TodayStuffProps>(null);
     const { dateString } = getNowDate();
 
-    const updateTodayStuff = async () => {
-        const todayStuffList = await getTodayStuff();
-        setTodayStuff({ date: dateString, stuff: todayStuffList });
-        localStorage.setItem(
-            "todayStuff",
-            JSON.stringify({ date: dateString, stuff: todayStuffList })
-        );
-    };
-
-    const emptyingStuff = (index: number) => {
-        return () => {
+    const toggleEmptyingStuff = (index: number) => {
+        return (isEmpty: boolean) => {
             setTodayStuff((prevTodayStuff) => {
                 if (!prevTodayStuff) return null;
+
                 const newTodayStuffList = [...prevTodayStuff.stuff];
-                newTodayStuffList[index].isEmpty = true;
+                newTodayStuffList[index].isEmpty = isEmpty;
                 prevTodayStuff.stuff = newTodayStuffList;
                 localStorage.setItem(
                     "todayStuff",
@@ -186,7 +184,7 @@ export const TodayStuffList = () => {
                                             summary={item.summary}
                                             src={item.src}
                                             isEmpty={item.isEmpty}
-                                            onClick={emptyingStuff(index)}
+                                            onClick={toggleEmptyingStuff(index)}
                                         />
                                     </motion.li>
                                 );
