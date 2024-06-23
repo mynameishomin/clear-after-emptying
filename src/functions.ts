@@ -21,3 +21,14 @@ export const getRandomArrayItem = <T extends {}>(array: T[], count: number) => {
 
     return newArray;
 };
+
+export const createGetStorage = <T>(itemName: string) => {
+    return (): T => {
+        const storageString = localStorage.getItem(itemName);
+        return storageString ? JSON.parse(storageString) : null;
+    };
+};
+
+export const createSetStorage = <T>(itemName: string) => {
+    return (data: T) => localStorage.setItem(itemName, JSON.stringify(data));
+};

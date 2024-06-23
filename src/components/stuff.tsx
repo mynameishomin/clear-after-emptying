@@ -1,28 +1,29 @@
 import { useEffect, useState } from "react";
 import Button from "@/components/button";
 import Image from "next/image";
-import { StuffProps, TodayStuffProps } from "@/type";
-import { getNowDate, getRandomArrayItem } from "@/functions";
+import { StuffHistoryProps, StuffProps, TodayStuffProps } from "@/type";
+import {
+    createGetStorage,
+    createSetStorage,
+    getNowDate,
+    getRandomArrayItem,
+} from "@/functions";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
+import { STUFF_HISTORY, TODAY_STUFF } from "@/variables";
 
-interface TodayStuffCardProps extends StuffProps {
+interface TodayStuffCardProps {
+    stuff: StuffProps;
     onClick: (isEmpty: boolean) => void;
 }
 
-export const TodayStuffCard = ({
-    title,
-    summary,
-    src,
-    isEmpty,
-    onClick,
-}: TodayStuffCardProps) => {
+export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
     return (
         <Card>
             <div className="h-full">
                 <motion.div
                     initial={{ rotateY: 0 }}
-                    animate={{ rotateY: isEmpty ? 0 : 180 }}
+                    animate={{ rotateY: stuff.isEmpty ? 0 : 180 }}
                     className="backface-hidden absolute inset-0 flex p-4"
                 >
                     <motion.div
@@ -30,8 +31,8 @@ export const TodayStuffCard = ({
                         initial={{ rotateY: 180 }}
                     >
                         <div className="mb-2">
-                            <h3 className="text-lg font-bold">{title}</h3>
-                            <p className="text-sm">{summary}</p>
+                            <h3 className="text-lg font-bold">{stuff.title}</h3>
+                            <p className="text-sm">{stuff.summary}</p>
                         </div>
 
                         <div className="flex flex-col mt-auto gap-2">
@@ -45,19 +46,19 @@ export const TodayStuffCard = ({
                 <motion.div
                     className="backface-hidden relative flex flex-col p-4 gap-4 h-full bg-white"
                     initial={{ rotateY: 0 }}
-                    animate={{ rotateY: isEmpty ? 180 : 0 }}
+                    animate={{ rotateY: stuff.isEmpty ? 180 : 0 }}
                 >
                     <Image
-                        src={src}
-                        alt={title}
+                        src={stuff.src}
+                        alt={stuff.title}
                         width={500}
                         height={500}
                         className="w-full h-full object-cover rounded-lg"
                     />
                     <div className="flex flex-col mt-auto">
                         <div className="mb-2">
-                            <h3 className="text-lg font-bold">{title}</h3>
-                            <p className="text-sm">{summary}</p>
+                            <h3 className="text-lg font-bold">{stuff.title}</h3>
+                            <p className="text-sm">{stuff.summary}</p>
                         </div>
 
                         <div className="flex flex-col mt-auto gap-2">
@@ -73,23 +74,6 @@ export const TodayStuffCard = ({
     );
 };
 
-const getStuffList = async (): Promise<StuffProps[]> => {
-    const response = await fetch("/stuff.json");
-    const stuffList = await response.json();
-    return stuffList.stuff;
-};
-
-const getTodayStuff = async () => {
-    const stuffList = await getStuffList();
-    const randomStuff = getRandomArrayItem<StuffProps>(stuffList, 3);
-    randomStuff.forEach((item) => {
-        item.isEmpty = false;
-        item.emptyDate = "";
-    });
-
-    return randomStuff;
-};
-
 export const TodayStuffList = () => {
     const [todayStuff, setTodayStuff] = useState<null | TodayStuffProps>(null);
     const { dateString } = getNowDate();
@@ -102,22 +86,16 @@ export const TodayStuffList = () => {
                 const newTodayStuffList = [...prevTodayStuff.stuff];
                 newTodayStuffList[index].isEmpty = isEmpty;
                 prevTodayStuff.stuff = newTodayStuffList;
-                localStorage.setItem(
-                    "todayStuff",
-                    JSON.stringify(prevTodayStuff)
-                );
+                setStorageTodayStuff(prevTodayStuff);
 
-                const storageStuffHistory =
-                    localStorage.getItem("stuffHistory");
+                const storageStuffHistory = getStorageStuffHistory();
+
                 if (storageStuffHistory) {
                     newTodayStuffList[index].emptyDate = dateString;
-                    const stuffHistory = JSON.parse(storageStuffHistory);
+                    const stuffHistory = storageStuffHistory;
                     stuffHistory.push(newTodayStuffList[index]);
 
-                    localStorage.setItem(
-                        "stuffHistory",
-                        JSON.stringify(stuffHistory)
-                    );
+                    setStorageStuffHistory(stuffHistory);
                 }
 
                 return {
@@ -130,17 +108,18 @@ export const TodayStuffList = () => {
 
     useEffect(() => {
         (async () => {
-            const storageTodayStuff = localStorage.getItem("todayStuff");
+            const storageTodayStuff = getStorageTodayStuff();
 
             if (storageTodayStuff) {
-                setTodayStuff(JSON.parse(storageTodayStuff));
+                setTodayStuff(storageTodayStuff);
             } else {
                 const todayStuffList = await getTodayStuff();
-                setTodayStuff({ date: dateString, stuff: todayStuffList });
-                localStorage.setItem(
-                    "todayStuff",
-                    JSON.stringify({ date: dateString, stuff: todayStuffList })
-                );
+                const newTodayStuff = {
+                    date: dateString,
+                    stuff: todayStuffList,
+                };
+                setTodayStuff(newTodayStuff);
+                setStorageTodayStuff(newTodayStuff);
             }
         })();
     }, [dateString]);
@@ -153,7 +132,8 @@ export const TodayStuffList = () => {
                 key="today-stuff-list"
             >
                 <motion.ul
-                    className="flex justify-center gap-4"
+                    className="flex flex-col justify-center gap-4"
+                    initial={{ perspective: 800 }}
                     animate={{
                         transition: {
                             staggerChildren: 0.2,
@@ -162,7 +142,7 @@ export const TodayStuffList = () => {
                 >
                     <AnimatePresence>
                         {todayStuff?.stuff.map(
-                            (item: StuffProps, index: number) => {
+                            (stuff: StuffProps, index: number) => {
                                 return (
                                     <motion.li
                                         key={`todayStuff_${index}`}
@@ -170,20 +150,16 @@ export const TodayStuffList = () => {
                                         initial={{
                                             y: 20,
                                             opacity: 0,
-                                            perspective: 800,
                                         }}
                                         animate={{
                                             y: 0,
                                             opacity: 1,
-                                            rotateY: item.isEmpty ? 180 : 0,
+                                            rotateY: stuff.isEmpty ? 180 : 0,
                                         }}
                                         exit={{ opacity: 0, rotateY: 50 }}
                                     >
                                         <TodayStuffCard
-                                            title={item.title}
-                                            summary={item.summary}
-                                            src={item.src}
-                                            isEmpty={item.isEmpty}
+                                            stuff={stuff}
                                             onClick={toggleEmptyingStuff(index)}
                                         />
                                     </motion.li>
@@ -195,4 +171,26 @@ export const TodayStuffList = () => {
             </motion.div>
         </AnimatePresence>
     );
+};
+
+const getStuffList = async (): Promise<StuffProps[]> => {
+    return (await (await fetch("/stuff.json")).json()).stuff;
+};
+
+const getStorageTodayStuff = createGetStorage<TodayStuffProps>(TODAY_STUFF);
+const setStorageTodayStuff = createSetStorage<TodayStuffProps>(TODAY_STUFF);
+
+const getStorageStuffHistory = createGetStorage<StuffProps[]>(STUFF_HISTORY);
+const setStorageStuffHistory = createSetStorage<StuffProps[]>(STUFF_HISTORY);
+
+const getTodayStuff = async () => {
+    const stuffList = await getStuffList();
+    const randomStuff = getRandomArrayItem<StuffProps>(stuffList, 3);
+    randomStuff.forEach((item, index) => {
+        item.id = `${Date.now()}${index}`;
+        item.isEmpty = false;
+        item.emptyDate = "";
+    });
+
+    return randomStuff;
 };

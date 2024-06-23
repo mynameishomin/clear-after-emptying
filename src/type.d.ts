@@ -1,4 +1,5 @@
 export interface StuffProps {
+    id: string;
     title: string;
     summary: string;
     src: string;
