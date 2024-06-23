@@ -10,7 +10,7 @@ export default function Home() {
         }
     }, []);
     return (
-        <div className="flex flex-col justify-center -translate-y-1/4">
+        <div className="flex flex-col md:justify-center w-full">
             <TodayStuffList />
         </div>
     );

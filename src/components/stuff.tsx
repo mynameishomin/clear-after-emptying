@@ -22,9 +22,9 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
         <Card>
             <div className="h-full">
                 <motion.div
+                    className="backface-hidden absolute inset-0 flex"
                     initial={{ rotateY: 0 }}
                     animate={{ rotateY: stuff.isEmpty ? 0 : 180 }}
-                    className="backface-hidden absolute inset-0 flex p-4"
                 >
                     <motion.div
                         className="flex flex-col mt-auto"
@@ -44,7 +44,7 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
                     </motion.div>
                 </motion.div>
                 <motion.div
-                    className="backface-hidden relative flex flex-col p-4 gap-4 h-full bg-white"
+                    className="backface-hidden relative flex md:flex-col gap-4 h-full pb-[100%]"
                     initial={{ rotateY: 0 }}
                     animate={{ rotateY: stuff.isEmpty ? 180 : 0 }}
                 >
@@ -53,19 +53,18 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
                         alt={stuff.title}
                         width={500}
                         height={500}
-                        className="w-full h-full object-cover rounded-lg"
+                        className="absolute inset-0 w-full h-full object-cover rounded-lg"
                     />
-                    <div className="flex flex-col mt-auto">
-                        <div className="mb-2">
-                            <h3 className="text-lg font-bold">{stuff.title}</h3>
-                            <p className="text-sm">{stuff.summary}</p>
-                        </div>
 
-                        <div className="flex flex-col mt-auto gap-2">
-                            <Button
-                                text="버릴래요"
-                                onClick={() => onClick(true)}
-                            />
+                    <div className="absolute left-0 right-0 bottom-0 p-1">
+                        <div className="flex backdrop-blur-md rounded-md overflow-hidden">
+                            <h3 className="text-white">{stuff.title}</h3>
+
+                            <span>버릴래료</span>
+                            {/* <Button
+                                    text="버릴래요"
+                                    onClick={() => onClick(true)}
+                                /> */}
                         </div>
                     </div>
                 </motion.div>
@@ -78,7 +77,7 @@ export const TodayStuffList = () => {
     const [todayStuff, setTodayStuff] = useState<null | TodayStuffProps>(null);
     const { dateString } = getNowDate();
 
-    const toggleEmptyingStuff = (index: number) => {
+    const toggleEmptyingStuff = (stuffID: string, index: number) => {
         return (isEmpty: boolean) => {
             setTodayStuff((prevTodayStuff) => {
                 if (!prevTodayStuff) return null;
@@ -90,13 +89,19 @@ export const TodayStuffList = () => {
 
                 const storageStuffHistory = getStorageStuffHistory();
 
-                if (storageStuffHistory) {
-                    newTodayStuffList[index].emptyDate = dateString;
-                    const stuffHistory = storageStuffHistory;
-                    stuffHistory.push(newTodayStuffList[index]);
+                newTodayStuffList[index].emptyDate = dateString;
 
-                    setStorageStuffHistory(stuffHistory);
+                const stuffIndex = storageStuffHistory.findIndex(
+                    (stuff) => stuff.id === stuffID
+                );
+
+                if (isEmpty) {
+                    storageStuffHistory.push(newTodayStuffList[index]);
+                } else {
+                    storageStuffHistory.splice(stuffIndex);
                 }
+
+                setStorageStuffHistory(storageStuffHistory);
 
                 return {
                     date: prevTodayStuff.date,
@@ -106,11 +111,28 @@ export const TodayStuffList = () => {
         };
     };
 
+    const container = {
+        visible: {
+            transition: {
+                delayChildren: 0.3,
+                staggerChildren: 0.2,
+            },
+        },
+    };
+
+    const item = {
+        hidden: { y: 40, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+        },
+    };
+
     useEffect(() => {
         (async () => {
             const storageTodayStuff = getStorageTodayStuff();
 
-            if (storageTodayStuff) {
+            if (storageTodayStuff && storageTodayStuff.date === dateString) {
                 setTodayStuff(storageTodayStuff);
             } else {
                 const todayStuffList = await getTodayStuff();
@@ -123,52 +145,33 @@ export const TodayStuffList = () => {
             }
         })();
     }, [dateString]);
+
+    if (!todayStuff) return null;
+
     return (
         <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0, position: "absolute" }}
-                animate={{ opacity: 1, position: "relative" }}
-                transition={{ delay: 0.9 }}
-                key="today-stuff-list"
+            <motion.ul
+                className="grid grid-cols-2 gap-4 md:flex-row"
+                initial="hidden"
+                animate="visible"
+                variants={container}
             >
-                <motion.ul
-                    className="flex flex-col justify-center gap-4"
-                    initial={{ perspective: 800 }}
-                    animate={{
-                        transition: {
-                            staggerChildren: 0.2,
-                        },
-                    }}
-                >
-                    <AnimatePresence>
-                        {todayStuff?.stuff.map(
-                            (stuff: StuffProps, index: number) => {
-                                return (
-                                    <motion.li
-                                        key={`todayStuff_${index}`}
-                                        layout
-                                        initial={{
-                                            y: 20,
-                                            opacity: 0,
-                                        }}
-                                        animate={{
-                                            y: 0,
-                                            opacity: 1,
-                                            rotateY: stuff.isEmpty ? 180 : 0,
-                                        }}
-                                        exit={{ opacity: 0, rotateY: 50 }}
-                                    >
-                                        <TodayStuffCard
-                                            stuff={stuff}
-                                            onClick={toggleEmptyingStuff(index)}
-                                        />
-                                    </motion.li>
-                                );
-                            }
-                        )}
-                    </AnimatePresence>
-                </motion.ul>
-            </motion.div>
+                {todayStuff.stuff.map((stuff: StuffProps, index: number) => {
+                    return (
+                        <motion.li
+                            key={stuff.id}
+                            layout
+                            variants={item}
+                            animate={{ rotateY: stuff.isEmpty ? 180 : 0 }}
+                        >
+                            <TodayStuffCard
+                                stuff={stuff}
+                                onClick={toggleEmptyingStuff(stuff.id, index)}
+                            />
+                        </motion.li>
+                    );
+                })}
+            </motion.ul>
         </AnimatePresence>
     );
 };
@@ -184,8 +187,7 @@ const getStorageStuffHistory = createGetStorage<StuffProps[]>(STUFF_HISTORY);
 const setStorageStuffHistory = createSetStorage<StuffProps[]>(STUFF_HISTORY);
 
 const getTodayStuff = async () => {
-    const stuffList = await getStuffList();
-    const randomStuff = getRandomArrayItem<StuffProps>(stuffList, 3);
+    const randomStuff = getRandomArrayItem<StuffProps>(await getStuffList(), 5);
     randomStuff.forEach((item, index) => {
         item.id = `${Date.now()}${index}`;
         item.isEmpty = false;
