@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Do_Hyeon } from "next/font/google";
+
 import "./globals.css";
 import Frame from "@/components/frame";
 import { getNowDate } from "@/functions";
@@ -7,6 +8,7 @@ import Link from "next/link";
 import Navigation from "@/components/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
+const doHyeon = Do_Hyeon({ subsets: ["latin"], weight: "400" });
 
 export const metadata: Metadata = {
     title: "Create Next App",
@@ -20,25 +22,10 @@ export default function RootLayout({
 }>) {
     const { year, month, day, dateString } = getNowDate();
     return (
-        <html lang="ko">
-            <body className={inter.className}>
-                <div className="h-screen w-screen bg-main-background bg-cover bg-bottom	">
-                    <div className="flex flex-col h-full w-full backdrop-blur-sm">
-                        <header className="w-full p-6 z-10">
-                            <time
-                                className="block text-xs"
-                                dateTime={`${year}-${month}-${day}`}
-                            >
-                                {month}월 {day}일
-                            </time>
-                            <Navigation />
-                        </header>
-                        <div className="flex flex-col justify-center items-center grow w-full overflow-auto">
-                            <div className="relative flex justify-center w-full h-full px-6">
-                                {children}
-                            </div>
-                        </div>
-                    </div>
+        <html lang="ko" className="bg-sub">
+            <body className={doHyeon.className}>
+                <div className="w-screen min-h-screen overflow-hidden text-point break-keep">
+                    {children}
                 </div>
             </body>
         </html>
