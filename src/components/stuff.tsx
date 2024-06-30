@@ -102,6 +102,26 @@ export const TodayStuffList = () => {
         };
     };
 
+    const throwStuff = ({
+        id,
+        title,
+        summary,
+        src,
+        isEmpty,
+        emptyDate,
+    }: StuffProps) => {
+        const stuffHistory = getStorageStuffHistory();
+        stuffHistory.push({
+            id: id,
+            title: title,
+            summary: summary,
+            src: src,
+            isEmpty: isEmpty,
+            emptyDate: emptyDate,
+        });
+        setStorageStuffHistory(stuffHistory);
+    };
+
     const container = {
         visible: {
             transition: {
@@ -157,9 +177,14 @@ export const TodayStuffList = () => {
                         </motion.li>
                     );
                 })}
-                <motion.li key="add-stuff-card" layout variants={item}>
+                <motion.li
+                    className="relative pb-[100%]"
+                    key="add-stuff-card"
+                    layout
+                    variants={item}
+                >
                     <motion.button
-                        className="flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
+                        className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
                         onClick={() => {
                             setIsOpen((prev) => !prev);
                         }}
@@ -168,8 +193,24 @@ export const TodayStuffList = () => {
                     </motion.button>
                 </motion.li>
             </motion.ul>
-            <Modla isOpen={isOpen} setIsOpen={setIsOpen}>
-                <div>가나다라마바사</div>
+            <Modla isOpen={isOpen} setIsOpen={setIsOpen} onAction={throwStuff}>
+                <div className="flex flex-col gap-4 min-w-64">
+                    <label className="flex flex-col">
+                        <h3 className="mb-1 pl-1">이름</h3>
+                        <input
+                            className="py-1 px-2 rounded-lg border-2 border-point"
+                            type="text"
+                        />
+                    </label>
+
+                    <label className="flex flex-col">
+                        <h3 className="mb-1 pl-1">설명</h3>
+                        <textarea
+                            className="py-1 px-2 rounded-lg border-2 border-point"
+                            rows={3}
+                        />
+                    </label>
+                </div>
             </Modla>
         </AnimatePresence>
     );
@@ -186,7 +227,7 @@ const getStorageStuffHistory = createGetStorage<StuffProps[]>(STUFF_HISTORY);
 const setStorageStuffHistory = createSetStorage<StuffProps[]>(STUFF_HISTORY);
 
 const getTodayStuff = async () => {
-    const randomStuff = getRandomArrayItem<StuffProps>(await getStuffList(), 1);
+    const randomStuff = getRandomArrayItem<StuffProps>(await getStuffList(), 0);
     randomStuff.forEach((item, index) => {
         item.id = `${Date.now()}${index}`;
         item.isEmpty = false;

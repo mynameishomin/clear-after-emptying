@@ -3,10 +3,13 @@ import Container from "@/components/layout/container";
 import { Header } from "@/components/layout/header";
 import { TodayStuffList } from "@/components/stuff";
 import { site } from "@/variables";
-import { useEffect } from "react";
-import { Card, CardWrapper } from "@/components/card";
+import { useEffect, useState } from "react";
+import { StuffHistoryProps } from "@/type";
 
 export default function Home() {
+    const [stuffHistory, setStuffHistory] = useState<null | StuffHistoryProps>(
+        null
+    );
     useEffect(() => {
         const storageStuffHistory = localStorage.getItem("stuffHistory");
         if (!storageStuffHistory) {
@@ -40,11 +43,13 @@ export default function Home() {
                         <TodayStuffList />
                     </section>
 
-                    <section>
-                        <h2 className="text-xl mb-1">
-                            지금까지 물건을 이만큼 비웠어요.
-                        </h2>
-                    </section>
+                    {stuffHistory && (
+                        <section>
+                            <h2 className="text-xl mb-1">
+                                지금까지 물건을 이만큼 비웠어요.
+                            </h2>
+                        </section>
+                    )}
                 </div>
             </Container>
 
