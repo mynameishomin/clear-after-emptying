@@ -10,6 +10,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
 import { STUFF_HISTORY, TODAY_STUFF } from "@/variables";
+import { Modla } from "@/components/modal";
 
 interface TodayStuffCardProps {
     stuff: StuffProps;
@@ -64,6 +65,8 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
 export const TodayStuffList = () => {
     const [todayStuff, setTodayStuff] = useState<null | TodayStuffProps>(null);
     const { dateString } = getNowDate();
+
+    const [isOpen, setIsOpen] = useState(false);
 
     const toggleEmptyingStuff = (stuffID: string, index: number) => {
         return (isEmpty: boolean) => {
@@ -155,11 +158,19 @@ export const TodayStuffList = () => {
                     );
                 })}
                 <motion.li key="add-stuff-card" layout variants={item}>
-                    <motion.button className="flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all">
+                    <motion.button
+                        className="flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
+                        onClick={() => {
+                            setIsOpen((prev) => !prev);
+                        }}
+                    >
                         <span className="text-2xl">+</span>
                     </motion.button>
                 </motion.li>
             </motion.ul>
+            <Modla isOpen={isOpen} setIsOpen={setIsOpen}>
+                <div>가나다라마바사</div>
+            </Modla>
         </AnimatePresence>
     );
 };
