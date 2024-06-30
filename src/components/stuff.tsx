@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import Button from "@/components/button";
 import Image from "next/image";
-import { StuffHistoryProps, StuffProps, TodayStuffProps } from "@/type";
+import { StuffProps, TodayStuffProps } from "@/type";
 import {
     createGetStorage,
     createSetStorage,
@@ -20,55 +19,44 @@ interface TodayStuffCardProps {
 export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
     return (
         <Card>
-            <div className="h-full">
-                <motion.div
-                    className="backface-hidden absolute inset-0 flex"
-                    initial={{ rotateY: 0 }}
-                    animate={{ rotateY: stuff.isEmpty ? 0 : 180 }}
-                >
-                    <motion.div
-                        className="flex flex-col mt-auto"
-                        initial={{ rotateY: 180 }}
-                    >
-                        <div className="mb-2">
-                            <h3 className="text-lg font-bold">{stuff.title}</h3>
-                            <p className="text-sm">{stuff.summary}</p>
-                        </div>
-
-                        <div className="flex flex-col mt-auto gap-2">
-                            <Button
-                                text="남길래요"
-                                onClick={() => onClick(false)}
-                            />
-                        </div>
-                    </motion.div>
-                </motion.div>
-                <motion.div
-                    className="backface-hidden relative flex md:flex-col gap-4 h-full pb-[100%]"
-                    initial={{ rotateY: 0 }}
-                    animate={{ rotateY: stuff.isEmpty ? 180 : 0 }}
-                >
-                    <Image
-                        src={stuff.src}
-                        alt={stuff.title}
-                        width={500}
-                        height={500}
-                        className="absolute inset-0 w-full h-full object-cover rounded-lg"
-                    />
-
-                    <div className="absolute left-0 right-0 bottom-0 p-1">
-                        <div className="flex backdrop-blur-md rounded-md overflow-hidden">
-                            <h3 className="text-white">{stuff.title}</h3>
-
-                            <span>버릴래료</span>
-                            {/* <Button
-                                    text="버릴래요"
-                                    onClick={() => onClick(true)}
-                                /> */}
-                        </div>
-                    </div>
-                </motion.div>
-            </div>
+            <motion.div className="backface-hidden relative flex md:flex-col gap-4 h-full pb-[100%]">
+                <Image
+                    src={stuff.src}
+                    alt={stuff.title}
+                    width={500}
+                    height={500}
+                    className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0">
+                    {stuff.isEmpty ? (
+                        <motion.button
+                            layout
+                            layoutId={stuff.id}
+                            className="absolute -inset-1/4 bg-main"
+                        >
+                            버렸어요
+                        </motion.button>
+                    ) : (
+                        <motion.div
+                            className="absolute inset-0 top-auto flex flex-col -m-0.5 px-4 py-2 border-2 border-point rounded-t-lg overflow-hidden bg-main"
+                            initial={{ y: -100 }}
+                            animate={{ y: 0 }}
+                        >
+                            <h3 className="mb-1">{stuff.title}</h3>
+                            <motion.button
+                                layout
+                                layoutId={stuff.id}
+                                className="w-full py-1 px-4 border-2 border-point rounded-full bg-sub"
+                                whileHover={{ scale: 1.08 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => onClick(true)}
+                            >
+                                버릴래요
+                            </motion.button>
+                        </motion.div>
+                    )}
+                </div>
+            </motion.div>
         </Card>
     );
 };
@@ -151,19 +139,14 @@ export const TodayStuffList = () => {
     return (
         <AnimatePresence>
             <motion.ul
-                className="grid grid-cols-2 gap-4 md:flex-row"
+                className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3"
                 initial="hidden"
                 animate="visible"
                 variants={container}
             >
                 {todayStuff.stuff.map((stuff: StuffProps, index: number) => {
                     return (
-                        <motion.li
-                            key={stuff.id}
-                            layout
-                            variants={item}
-                            animate={{ rotateY: stuff.isEmpty ? 180 : 0 }}
-                        >
+                        <motion.li key={stuff.id} layout variants={item}>
                             <TodayStuffCard
                                 stuff={stuff}
                                 onClick={toggleEmptyingStuff(stuff.id, index)}
@@ -171,6 +154,11 @@ export const TodayStuffList = () => {
                         </motion.li>
                     );
                 })}
+                <motion.li key="add-stuff-card" layout variants={item}>
+                    <motion.button className="flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all">
+                        <span className="text-2xl">+</span>
+                    </motion.button>
+                </motion.li>
             </motion.ul>
         </AnimatePresence>
     );
@@ -187,7 +175,7 @@ const getStorageStuffHistory = createGetStorage<StuffProps[]>(STUFF_HISTORY);
 const setStorageStuffHistory = createSetStorage<StuffProps[]>(STUFF_HISTORY);
 
 const getTodayStuff = async () => {
-    const randomStuff = getRandomArrayItem<StuffProps>(await getStuffList(), 5);
+    const randomStuff = getRandomArrayItem<StuffProps>(await getStuffList(), 1);
     randomStuff.forEach((item, index) => {
         item.id = `${Date.now()}${index}`;
         item.isEmpty = false;

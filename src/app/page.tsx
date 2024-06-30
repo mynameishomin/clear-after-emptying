@@ -33,13 +33,17 @@ export default function Home() {
                         </p>
                     </div>
 
+                    <section className="mb-20">
+                        <h2 className="text-xl mb-4">
+                            오늘, 이런 물건을 비웠어요.
+                        </h2>
+                        <TodayStuffList />
+                    </section>
+
                     <section>
-                        <h2></h2>
-                        <CardWrapper>
-                            <Card>
-                                <div>아직 비우지 못했어요.</div>
-                            </Card>
-                        </CardWrapper>
+                        <h2 className="text-xl mb-1">
+                            지금까지 물건을 이만큼 비웠어요.
+                        </h2>
                     </section>
                 </div>
             </Container>

@@ -11,5 +11,17 @@ export const CardWrapper = ({ children }: { children: React.ReactElement }) => {
 };
 
 export const Card = ({ children }: { children: React.ReactElement }) => {
-    return <div className="p-2 border-point rounded-md bg-sub">{children}</div>;
+    return (
+        <div className="border-2 border-point rounded-md bg-sub overflow-hidden">
+            {children}
+        </div>
+    );
+};
+
+export const StuffCard = () => {
+    return (
+        <Card>
+            <div></div>
+        </Card>
+    );
 };
