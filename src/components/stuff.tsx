@@ -64,6 +64,9 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
 
 export const TodayStuffList = () => {
     const [todayStuff, setTodayStuff] = useState<null | TodayStuffProps>(null);
+    const [stuffTitle, setStuffTitle] = useState("");
+    const [stuffSummary, setStuffSummary] = useState("");
+
     const { dateString } = getNowDate();
 
     const [isOpen, setIsOpen] = useState(false);
@@ -102,24 +105,21 @@ export const TodayStuffList = () => {
         };
     };
 
-    const throwStuff = ({
-        id,
-        title,
-        summary,
-        src,
-        isEmpty,
-        emptyDate,
-    }: StuffProps) => {
-        const stuffHistory = getStorageStuffHistory();
-        stuffHistory.push({
-            id: id,
-            title: title,
-            summary: summary,
-            src: src,
-            isEmpty: isEmpty,
-            emptyDate: emptyDate,
+    const throwStuff = () => {
+        const storageTodayStuff = getStorageTodayStuff();
+        storageTodayStuff.stuff.push({
+            id: String(Date.now()),
+            title: stuffTitle,
+            summary: stuffSummary,
+            src: "",
+            isEmpty: true,
+            emptyDate: dateString,
         });
-        setStorageStuffHistory(stuffHistory);
+        setStorageTodayStuff(storageTodayStuff);
+        setTodayStuff(storageTodayStuff);
+        setStuffTitle("");
+        setStuffSummary("");
+        setIsOpen(false);
     };
 
     const container = {
@@ -193,6 +193,7 @@ export const TodayStuffList = () => {
                     </motion.button>
                 </motion.li>
             </motion.ul>
+
             <Modla isOpen={isOpen} setIsOpen={setIsOpen} onAction={throwStuff}>
                 <div className="flex flex-col gap-4 min-w-64">
                     <label className="flex flex-col">
@@ -200,6 +201,8 @@ export const TodayStuffList = () => {
                         <input
                             className="py-1 px-2 rounded-lg border-2 border-point"
                             type="text"
+                            value={stuffTitle}
+                            onChange={(e) => setStuffTitle(e.target.value)}
                         />
                     </label>
 
@@ -208,6 +211,8 @@ export const TodayStuffList = () => {
                         <textarea
                             className="py-1 px-2 rounded-lg border-2 border-point"
                             rows={3}
+                            value={stuffSummary}
+                            onChange={(e) => setStuffSummary(e.target.value)}
                         />
                     </label>
                 </div>

@@ -4,7 +4,7 @@ interface ModalProps {
     children: React.ReactElement;
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
-    onAction: Function;
+    onAction: () => void;
 }
 
 export const Modla = ({
