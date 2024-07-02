@@ -21,41 +21,17 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
     return (
         <Card>
             <motion.div className="backface-hidden relative flex md:flex-col gap-4 h-full pb-[100%]">
-                <Image
-                    src={stuff.src}
-                    alt={stuff.title}
-                    width={500}
-                    height={500}
-                    className="absolute inset-0 w-full h-full object-cover"
-                />
-                <div className="absolute inset-0">
-                    {stuff.isEmpty ? (
-                        <motion.button
-                            layout
-                            layoutId={stuff.id}
-                            className="absolute -inset-1/4 bg-main"
-                        >
-                            버렸어요
-                        </motion.button>
-                    ) : (
-                        <motion.div
-                            className="absolute inset-0 top-auto flex flex-col -m-0.5 px-4 py-2 border-2 border-point rounded-t-lg overflow-hidden bg-main"
-                            initial={{ y: -100 }}
-                            animate={{ y: 0 }}
-                        >
-                            <h3 className="mb-1">{stuff.title}</h3>
-                            <motion.button
-                                layout
-                                layoutId={stuff.id}
-                                className="w-full py-1 px-4 border-2 border-point rounded-full bg-sub"
-                                whileHover={{ scale: 1.08 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => onClick(true)}
-                            >
-                                버릴래요
-                            </motion.button>
-                        </motion.div>
-                    )}
+                <div className="absolute inset-0 flex flex-col p-3">
+                    <h3 className="shrink-0 mb-2 text-xl truncate">
+                        {stuff.title}
+                    </h3>
+                    <p className="relative grow leading-5 overflow-hidden">
+                        {stuff.summary}
+                        <span className="absolute inset-0 top-1/2 bg-gradient-to-t from-sub to-transparent"></span>
+                    </p>
+                    <span className="shrink-0 text-sm text-right">
+                        {stuff.emptyDate}
+                    </span>
                 </div>
             </motion.div>
         </Card>
@@ -68,7 +44,6 @@ export const TodayStuffList = () => {
     const [stuffSummary, setStuffSummary] = useState("");
 
     const { dateString } = getNowDate();
-
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleEmptyingStuff = (stuffID: string, index: number) => {
