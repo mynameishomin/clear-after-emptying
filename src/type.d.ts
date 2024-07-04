@@ -1,10 +1,9 @@
 export interface StuffProps {
-    id: string;
-    title: string;
+    id?: string;
+    name: string;
     summary: string;
-    src: string;
-    isEmpty?: boolean;
-    emptyDate?: string;
+    imageUrl: string;
+    createdAt?: string;
 }
 
 export interface StuffHistoryProps extends StuffProps {
