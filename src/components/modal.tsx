@@ -26,16 +26,15 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
         close: {
             display: "none",
             opacity: 0,
-            zIndex: 10
+            zIndex: 10,
         },
-        open: {display: "flex", opacity: 1 },
+        open: { display: "flex", opacity: 1 },
     };
 
     return (
         <AnimatePresence>
             <motion.div
                 className="fixed inset-0 flex justify-center items-center p-4 pt-20 backdrop-blur-sm opacity-0"
-                layout
                 animate={isOpen ? "open" : "close"}
                 variants={modalVariants}
             >
@@ -53,17 +52,17 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
     );
 };
 
-export const ModalHeader = ({children}: ChildrenProps) => {
-    return <div className="mb-4">{children}</div>
-}
+export const ModalHeader = ({ children }: ChildrenProps) => {
+    return <div className="mb-4">{children}</div>;
+};
 
-export const ModalBody = ({children}: ChildrenProps) => {
-    return <div className="rounded-lg overflow-auto">{children}</div>
-}
+export const ModalBody = ({ children }: ChildrenProps) => {
+    return <div className="rounded-lg overflow-auto">{children}</div>;
+};
 
-export const ModalFooter = ({children}: ChildrenProps) => {
-    return <div className="mt-4">{children}</div>
-}
+export const ModalFooter = ({ children }: ChildrenProps) => {
+    return <div className="mt-4">{children}</div>;
+};
 
 // interface ModalProps_ {
 //     children: React.ReactElement;

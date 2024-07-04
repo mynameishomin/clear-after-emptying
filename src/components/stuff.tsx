@@ -63,10 +63,18 @@ export const TodayStuffList = () => {
         unsplashModal.onClose();
     };
 
-    const onSubmitStuff = (e: React.FormEvent) => {
+    const onSubmitStuff = async (e: React.FormEvent) => {
         e.preventDefault();
-        // POST 버린 물건 추가
-        setStuff({name: "", summary: ""} as StuffProps);
+        await fetch("/api/stuff", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(stuff),
+        });
+
+        console.log("asdas");
+        setStuff({ name: "", summary: "" } as StuffProps);
         stuffModal.onClose();
     };
 
@@ -88,34 +96,42 @@ export const TodayStuffList = () => {
     };
 
     return (
-        <AnimatePresence>
-            <motion.ul
-                className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3"
-                initial="hidden"
-                animate="visible"
-                variants={container}
-            >
-                {todayStuff?.stuff.map((stuff: StuffProps, index: number) => {
-                    return (
-                        <motion.li key={stuff.id} layout variants={item}>
-                            <TodayStuffCard stuff={stuff} onClick={() => {}} />
-                        </motion.li>
-                    );
-                })}
-                <motion.li
-                    className="relative pb-[100%]"
-                    key="add-stuff-card"
-                    layout
-                    variants={item}
+        <>
+            <AnimatePresence>
+                <motion.ul
+                    className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3"
+                    key="today-stuff-list"
+                    initial="hidden"
+                    animate="visible"
+                    variants={container}
                 >
-                    <motion.button
-                        className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
-                        onClick={stuffModal.onOpen}
+                    {todayStuff?.stuff.map(
+                        (stuff: StuffProps, index: number) => {
+                            return (
+                                <motion.li key={index} layout variants={item}>
+                                    <TodayStuffCard
+                                        stuff={stuff}
+                                        onClick={() => {}}
+                                    />
+                                </motion.li>
+                            );
+                        }
+                    )}
+                    <motion.li
+                        className="relative pb-[100%]"
+                        key={Date.now()}
+                        layout
+                        variants={item}
                     >
-                        <span className="text-2xl">+</span>
-                    </motion.button>
-                </motion.li>
-            </motion.ul>
+                        <motion.button
+                            className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
+                            onClick={stuffModal.onOpen}
+                        >
+                            <span className="text-2xl">+</span>
+                        </motion.button>
+                    </motion.li>
+                </motion.ul>
+            </AnimatePresence>
 
             <Modal isOpen={stuffModal.isOpen} onClose={stuffModal.onClose}>
                 <form onSubmit={onSubmitStuff}>
@@ -221,6 +237,6 @@ export const TodayStuffList = () => {
                 onClose={unsplashModal.onClose}
                 onSelect={onSelectImage}
             />
-        </AnimatePresence>
+        </>
     );
 };
