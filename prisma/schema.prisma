@@ -24,13 +24,14 @@ model stuff {
   id          String     @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   summary     String
-  imageUrl    String
+  urls        urls
   createdAt   DateTime
   userId      String @db.ObjectId
   user        user @relation(fields: [userId], references: [id])
 }
 
 model urls {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   regular     String
   thumb       String
 }

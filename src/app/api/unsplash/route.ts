@@ -9,7 +9,6 @@ export async function GET(request: Request) {
         },
     });
 
-    console.log(process.env.UNSPLASH_API_ACCESS_KEY);
     const data = await res.json();
 
     return Response.json({ data });
