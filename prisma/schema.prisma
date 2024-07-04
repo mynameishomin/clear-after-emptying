@@ -13,7 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
+model user {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  username  String             
+  name      String
+  password  String
+  stuff     stuff[]
 }
+
+model stuff {
+  id          String
+  name        String
+  summary     String
+  imageSrc    String
+  createdAt   DateTime
+  userId      string @db.ObjectId
+  user        @relation(fields: [userId], references: [id])
+}
+
