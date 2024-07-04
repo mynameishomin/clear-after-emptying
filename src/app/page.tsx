@@ -18,7 +18,6 @@ export default function Home() {
     }, []);
     return (
         <div className="flex flex-col md:justify-center w-full">
-            <Header />
             <Container>
                 <div>
                     <div className="mt-36 mb-12">

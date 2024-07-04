@@ -6,6 +6,7 @@ import Frame from "@/components/frame";
 import { getNowDate } from "@/functions";
 import Link from "next/link";
 import Navigation from "@/components/navigation";
+import { Header } from "@/components/layout/header";
 
 const inter = Inter({ subsets: ["latin"] });
 const doHyeon = Do_Hyeon({ subsets: ["latin"], weight: "400" });
@@ -25,7 +26,10 @@ export default function RootLayout({
         <html lang="ko" className="bg-sub">
             <body className={doHyeon.className}>
                 <div className="w-screen min-h-screen overflow-hidden text-point break-keep">
-                    {children}
+                    <Header />
+                    <div className="mt-16">
+                        {children}
+                    </div>
                 </div>
             </body>
         </html>

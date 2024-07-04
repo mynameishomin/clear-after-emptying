@@ -15,3 +15,7 @@ export interface TodayStuffProps {
     date: string;
     stuff: StuffProps[];
 }
+
+export interface ChildrenProps {
+    children: React.ReactElement;
+}

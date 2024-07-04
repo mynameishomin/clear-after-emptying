@@ -1,0 +1,92 @@
+"use client";
+import Image from "next/image";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUnsplash } from "@fortawesome/free-brands-svg-icons";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import Container from "@/components/layout/container";
+import { Modal, ModalBody, ModalFooter, ModalHeader, useModal } from "@/components/modal";
+import { useEffect, useState } from "react";
+import { UNSPLASH_API_PATH } from "@/variables";
+
+
+interface UnsplashPhotoProps {
+    id: string;
+    alt_description: string;
+    urls: {
+        thumb: string;
+    }
+}
+
+export default () => {
+    const { isOpen, onOpen, onClose } = useModal();
+    const [keyword, setKeyword] = useState("photo");
+    const [photoList, setPhotoList] = useState<null | UnsplashPhotoProps[]>(null);
+
+    const onSearch = async (e: React.FormEvent) => {
+        e.preventDefault();
+        getPhotoList();
+    }
+
+    const getPhotoList = async () => {
+        const response = await fetch(`${UNSPLASH_API_PATH}?keyword=${keyword}`);
+        const json = await response.json();
+        setPhotoList(json.data.results)
+    }
+
+    useEffect(() => {
+        onOpen();
+        getPhotoList();
+    }, []);
+
+    return (
+        <Container>
+            <div>
+                <button onClick={onOpen}>테스트</button>
+                <Modal isOpen={isOpen} onClose={onClose}>
+                    <>
+                        <ModalHeader>
+                            <div className="flex justify-between items-center">
+                                <h3 className="flex items-end gap-1">
+                                    <FontAwesomeIcon className="w-6 h-6" icon={faUnsplash} />
+                                    <span className="leading-none">Unsplash</span>
+                                </h3>
+                                <form onSubmit={onSearch}>
+                                    <div className="relative w-32">
+                                        <div className="flex items-center border-b-2 border-point">
+                                            <input
+                                                className="w-full py-0.5 pr-1 bg-transparent focus:outline-none"
+                                                type="text"
+                                                value={keyword}
+                                                onChange={(e) => setKeyword(e.target.value)}
+                                            />
+                                            <button className="p-1" type="submit">
+                                                <FontAwesomeIcon className="block w-4 h-4" icon={faMagnifyingGlass} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </ModalHeader>
+                        <ModalBody>
+                            <ul className="grid grid-cols-2 gap-2">
+                                {photoList?.map((photo) => {
+                                    return <li className="relative pb-[100%] overflow-hidden rounded-lg border-2 border-point" key={photo.id}>
+                                        <div className="absolute inset-0">
+                                            <Image className="object-cover" src={photo.urls.thumb} alt={photo.alt_description} width="200" height="200" />
+                                        </div>
+                                        <button className="absolute bottom-1 right-1 py-px px-2 text-sm rounded-md border-2 border-point bg-sub" type="button">선택</button>
+                                    </li>
+                                })}
+                            </ul>
+                        </ModalBody>
+                        <ModalFooter>
+                            <div className="flex justify-end">
+                                <button onClick={onClose} type="button">닫기</button>
+                            </div>
+                        </ModalFooter>
+                    </>
+                </Modal>
+            </div>
+        </Container>
+    );
+};

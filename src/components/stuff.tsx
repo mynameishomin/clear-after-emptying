@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { StuffProps, TodayStuffProps } from "@/type";
 import {
     createGetStorage,
@@ -10,7 +9,14 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
 import { STUFF_HISTORY, TODAY_STUFF } from "@/variables";
-import { Modla } from "@/components/modal";
+import {
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
+    useModal,
+} from "@/components/modal";
+import UnsplashModal from "./unsplash/unsplashModal";
 
 interface TodayStuffCardProps {
     stuff: StuffProps;
@@ -44,7 +50,9 @@ export const TodayStuffList = () => {
     const [stuffSummary, setStuffSummary] = useState("");
 
     const { dateString } = getNowDate();
-    const [isOpen, setIsOpen] = useState(false);
+
+    const stuffModal = useModal();
+    const unsplashModal = useModal();
 
     const toggleEmptyingStuff = (stuffID: string, index: number) => {
         return (isEmpty: boolean) => {
@@ -94,7 +102,7 @@ export const TodayStuffList = () => {
         setTodayStuff(storageTodayStuff);
         setStuffTitle("");
         setStuffSummary("");
-        setIsOpen(false);
+        // setIsOpen(false);
     };
 
     const container = {
@@ -160,38 +168,68 @@ export const TodayStuffList = () => {
                 >
                     <motion.button
                         className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
-                        onClick={() => {
-                            setIsOpen((prev) => !prev);
-                        }}
+                        onClick={stuffModal.onOpen}
                     >
                         <span className="text-2xl">+</span>
                     </motion.button>
                 </motion.li>
             </motion.ul>
 
-            <Modla isOpen={isOpen} setIsOpen={setIsOpen} onAction={throwStuff}>
-                <div className="flex flex-col gap-4 min-w-64">
-                    <label className="flex flex-col">
-                        <h3 className="mb-1 pl-1">이름</h3>
-                        <input
-                            className="py-1 px-2 rounded-lg border-2 border-point"
-                            type="text"
-                            value={stuffTitle}
-                            onChange={(e) => setStuffTitle(e.target.value)}
-                        />
-                    </label>
+            <Modal isOpen={stuffModal.isOpen} onClose={stuffModal.onClose}>
+                <form>
+                    <ModalHeader>
+                        <h3 className="text-lg">버릴 물건</h3>
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className="flex flex-col gap-4">
+                            <label className="flex flex-col">
+                                <h4>이름</h4>
+                                <div className="border-b-2 border-point">
+                                    <input
+                                        className="w-full bg-transparent focus:outline-none"
+                                        type="text"
+                                        value={stuffTitle}
+                                        onChange={(e) =>
+                                            setStuffTitle(e.target.value)
+                                        }
+                                    />
+                                </div>
+                            </label>
+                            <label className="flex flex-col">
+                                <h4>설명</h4>
+                                <div className="border-b-2 border-point">
+                                    <textarea
+                                        className="w-full py-0.5 pr-1 bg-transparent focus:outline-none"
+                                        rows={3}
+                                        value={stuffSummary}
+                                        onChange={(e) =>
+                                            setStuffSummary(e.target.value)
+                                        }
+                                    />
+                                </div>
+                            </label>
 
-                    <label className="flex flex-col">
-                        <h3 className="mb-1 pl-1">설명</h3>
-                        <textarea
-                            className="py-1 px-2 rounded-lg border-2 border-point"
-                            rows={3}
-                            value={stuffSummary}
-                            onChange={(e) => setStuffSummary(e.target.value)}
-                        />
-                    </label>
-                </div>
-            </Modla>
+                            <label className="flex flex-col">
+                                <h4 className="mb-1">사진</h4>
+                                <button
+                                    type="button"
+                                    className="relative flex justify-center items-center pb-[40%] border-2 border-point rounded-lg hover:bg-main transition-all"
+                                    onClick={unsplashModal.onOpen}
+                                >
+                                    <div className="absolute inset-0 flex justify-center items-center">
+                                        <span className="text-2xl">+</span>
+                                    </div>
+                                </button>
+                            </label>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <div></div>
+                    </ModalFooter>
+                </form>
+            </Modal>
+
+            <UnsplashModal isOpen={unsplashModal.isOpen} onClose={unsplashModal.onClose} />
         </AnimatePresence>
     );
 };
