@@ -30,3 +30,8 @@ model stuff {
   user        user @relation(fields: [userId], references: [id])
 }
 
+model urls {
+  regular     String
+  thumb       String
+}
+

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { StuffProps, TodayStuffProps } from "@/type";
+import Image from "next/image";
+import { StuffProps, StuffUrlsProps, TodayStuffProps } from "@/type";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
 import {
@@ -39,13 +40,35 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
 
 export const TodayStuffList = () => {
     const [todayStuff, setTodayStuff] = useState<null | TodayStuffProps>(null);
-    const [stuffTitle, setStuffTitle] = useState("");
-    const [stuffSummary, setStuffSummary] = useState("");
-
-    const [stuff, setStuff] = useState<StuffProps>();
-
+    const [stuff, setStuff] = useState<StuffProps>({} as StuffProps);
     const stuffModal = useModal();
     const unsplashModal = useModal();
+
+    const onChangeStuff = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { value, name } = e.target;
+        setStuff((prev) => {
+            prev[name] = value;
+            return { ...prev };
+        });
+    };
+
+    const onSelectImage = (urls: StuffUrlsProps) => {
+        setStuff((prev) => {
+            prev.urls = urls;
+            return { ...prev };
+        });
+
+        unsplashModal.onClose();
+    };
+
+    const onSubmitStuff = (e: React.FormEvent) => {
+        e.preventDefault();
+        // POST 버린 물건 추가
+        setStuff({name: "", summary: ""} as StuffProps);
+        stuffModal.onClose();
+    };
 
     const container = {
         visible: {
@@ -64,8 +87,6 @@ export const TodayStuffList = () => {
         },
     };
 
-    if (!todayStuff) return null;
-
     return (
         <AnimatePresence>
             <motion.ul
@@ -74,13 +95,10 @@ export const TodayStuffList = () => {
                 animate="visible"
                 variants={container}
             >
-                {todayStuff.stuff.map((stuff: StuffProps, index: number) => {
+                {todayStuff?.stuff.map((stuff: StuffProps, index: number) => {
                     return (
                         <motion.li key={stuff.id} layout variants={item}>
-                            <TodayStuffCard
-                                stuff={stuff}
-                                onClick={() => {}}
-                            />
+                            <TodayStuffCard stuff={stuff} onClick={() => {}} />
                         </motion.li>
                     );
                 })}
@@ -100,7 +118,7 @@ export const TodayStuffList = () => {
             </motion.ul>
 
             <Modal isOpen={stuffModal.isOpen} onClose={stuffModal.onClose}>
-                <form>
+                <form onSubmit={onSubmitStuff}>
                     <ModalHeader>
                         <h3 className="text-lg">버릴 물건</h3>
                     </ModalHeader>
@@ -112,10 +130,9 @@ export const TodayStuffList = () => {
                                     <input
                                         className="w-full bg-transparent focus:outline-none"
                                         type="text"
-                                        value={stuffTitle}
-                                        onChange={(e) =>
-                                            setStuffTitle(e.target.value)
-                                        }
+                                        value={stuff.name}
+                                        onChange={onChangeStuff}
+                                        name="name"
                                     />
                                 </div>
                             </label>
@@ -125,35 +142,85 @@ export const TodayStuffList = () => {
                                     <textarea
                                         className="w-full py-0.5 pr-1 bg-transparent focus:outline-none"
                                         rows={3}
-                                        value={stuffSummary}
-                                        onChange={(e) =>
-                                            setStuffSummary(e.target.value)
-                                        }
+                                        value={stuff.summary}
+                                        onChange={onChangeStuff}
+                                        name="summary"
                                     />
                                 </div>
                             </label>
 
                             <label className="flex flex-col">
                                 <h4 className="mb-1">사진</h4>
-                                <button
-                                    type="button"
-                                    className="relative flex justify-center items-center pb-[40%] border-2 border-point rounded-lg hover:bg-main transition-all"
-                                    onClick={unsplashModal.onOpen}
-                                >
-                                    <div className="absolute inset-0 flex justify-center items-center">
-                                        <span className="text-2xl">+</span>
-                                    </div>
-                                </button>
+
+                                <div className="relative flex justify-center items-center pb-[60%] border-2 border-point rounded-lg overflow-hidden hover:bg-main transition-all">
+                                    {stuff.urls ? (
+                                        <>
+                                            <div className="absolute inset-0 flex justify-center items-center">
+                                                <svg
+                                                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <circle
+                                                        className="opacity-25"
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="10"
+                                                        stroke="currentColor"
+                                                        stroke-width="4"
+                                                    ></circle>
+                                                    <path
+                                                        className="opacity-75"
+                                                        fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                    ></path>
+                                                </svg>
+                                            </div>
+                                            <Image
+                                                className="absolute inset-0 w-full h-full object-cover"
+                                                src={stuff.urls.regular}
+                                                alt={stuff.name}
+                                                width="200"
+                                                height="200"
+                                            />
+                                            <button
+                                                className="absolute bottom-1 right-1 py-px px-2 text-sm rounded-md border-2 border-point bg-sub"
+                                                type="button"
+                                                onClick={unsplashModal.onOpen}
+                                            >
+                                                바꾸기
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button
+                                            className="absolute inset-0 flex justify-center items-center"
+                                            type="button"
+                                            onClick={unsplashModal.onOpen}
+                                        >
+                                            <span className="text-2xl">+</span>
+                                        </button>
+                                    )}
+                                </div>
                             </label>
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <div></div>
+                        <div className="flex justify-end gap-3">
+                            <button type="button" onClick={stuffModal.onClose}>
+                                닫기
+                            </button>
+                            <button type="submit">버리기</button>
+                        </div>
                     </ModalFooter>
                 </form>
             </Modal>
 
-            <UnsplashModal isOpen={unsplashModal.isOpen} onClose={unsplashModal.onClose} onSelect={() => {}} />
+            <UnsplashModal
+                isOpen={unsplashModal.isOpen}
+                onClose={unsplashModal.onClose}
+                onSelect={onSelectImage}
+            />
         </AnimatePresence>
     );
 };

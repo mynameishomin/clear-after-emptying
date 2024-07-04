@@ -7,11 +7,13 @@ import Container from "@/components/layout/container";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/modal";
 import { useEffect, useState } from "react";
 import { UNSPLASH_API_PATH } from "@/variables";
+import { StuffUrlsProps } from "@/type";
 
 interface UnsplashPhotoProps {
     id: string;
     alt_description: string;
     urls: {
+        regular: string;
         thumb: string;
     };
 }
@@ -19,7 +21,7 @@ interface UnsplashPhotoProps {
 interface UnsplashModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSelect: () => void;
+    onSelect: (urls: StuffUrlsProps) => void;
 }
 
 export default ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
@@ -102,6 +104,7 @@ export default ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
                                     <button
                                         className="absolute bottom-1 right-1 py-px px-2 text-sm rounded-md border-2 border-point bg-sub"
                                         type="button"
+                                        onClick={() => onSelect(photo.urls)}
                                     >
                                         선택
                                     </button>

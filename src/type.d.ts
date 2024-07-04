@@ -1,9 +1,15 @@
 export interface StuffProps {
+    [key: string]: string;
     id?: string;
     name: string;
     summary: string;
-    imageUrl: string;
+    urls: StuffUrlsProps;
     createdAt?: string;
+}
+
+export interface StuffUrlsProps {
+    regular: string;
+    thumb: string;
 }
 
 export interface StuffHistoryProps extends StuffProps {
