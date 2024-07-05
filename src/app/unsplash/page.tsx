@@ -1,8 +1,10 @@
 "use client";
 import Container from "@/components/layout/container";
+import { useContext } from "react";
+import { AuthContext } from "../context/auth";
 
-export default () => {
-
+const Page = () => {
+    const auth = useContext(AuthContext);
     const registerTest = async () => {
         const response = await fetch("/api/auth/signup", {
             method: "POST",
@@ -12,7 +14,7 @@ export default () => {
             body: JSON.stringify({
                 email: "test@test.com",
                 password: "test",
-                name: "호민"
+                name: "호민",
             }),
         });
     };
@@ -25,3 +27,5 @@ export default () => {
         </Container>
     );
 };
+
+export default Page;

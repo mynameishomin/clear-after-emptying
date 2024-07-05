@@ -73,7 +73,6 @@ export const TodayStuffList = () => {
             body: JSON.stringify(stuff),
         });
 
-        console.log("asdas");
         setStuff({ name: "", summary: "" } as StuffProps);
         stuffModal.onClose();
     };
