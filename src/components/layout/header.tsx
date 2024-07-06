@@ -3,8 +3,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { site } from "@/variables";
 import Link from "next/link";
+import AuthModal from "@/components/auth/authModal";
+import { useModal } from "@/components/modal";
+import { useContext } from "react";
+import { AuthContext } from "@/app/context/auth";
 
 export const Header = () => {
+    const isLogin = useContext(AuthContext);
+    const { isOpen, onOpen, onClose } = useModal();
+
     return (
         <header className="fixed inset-0 bottom-auto mt-4 px-2 overflow-hidden sm:flex sm:justify-center z-10">
             <div className="border-2 border-point h-12 pl-4 rounded-md backdrop-blur-3xl sm:pr-4">
@@ -37,6 +44,15 @@ export const Header = () => {
                     </nav>
                 </div>
             </div>
+            {!isLogin && (
+                <button
+                    className="fixed bottom-10 right-10 py-1 px-2 rounded-lg border-2 border-point bg-sub"
+                    onClick={onOpen}
+                >
+                    로그인/회원가입
+                </button>
+            )}
+            <AuthModal isOpen={isOpen} onClose={onClose} />
         </header>
     );
 };

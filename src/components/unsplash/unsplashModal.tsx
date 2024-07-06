@@ -3,7 +3,6 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUnsplash } from "@fortawesome/free-brands-svg-icons";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import Container from "@/components/layout/container";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/modal";
 import { useEffect, useState } from "react";
 import { UNSPLASH_API_PATH } from "@/variables";
@@ -24,7 +23,7 @@ interface UnsplashModalProps {
     onSelect: (urls: StuffUrlsProps) => void;
 }
 
-export default ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
+const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
     const [keyword, setKeyword] = useState("");
     const [photoList, setPhotoList] = useState<null | UnsplashPhotoProps[]>(
         null
@@ -124,3 +123,5 @@ export default ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
         </Modal>
     );
 };
+
+export default UnsplashModal;
