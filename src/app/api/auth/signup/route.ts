@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { getHashedPassword, isDuplicateEmail } from "@/functions/auth";
 
 const prisma = new PrismaClient();
 
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
     const hasSignupData = email && password && confirmPassword && name;
     if (!hasSignupData) {
-        return Response.json("회원가입에 필요한 정보가 업습니다.", {
+        return Response.json("회원가입에 필요한 정보가 없습니다.", {
             status: 400,
         });
     }
@@ -29,10 +29,7 @@ export async function POST(request: Request) {
         });
     }
 
-    const isDuplicateUser = Boolean(
-        await prisma.user.findUnique({ where: { email } })
-    );
-    if (isDuplicateUser) {
+    if (await isDuplicateEmail(email)) {
         return Response.json("이미 등록된 이메일입니다.", {
             status: 405,
         });
@@ -52,7 +49,3 @@ export async function POST(request: Request) {
         },
     });
 }
-
-export const getHashedPassword = (password: string) => {
-    return bcrypt.hashSync(password, 8);
-};

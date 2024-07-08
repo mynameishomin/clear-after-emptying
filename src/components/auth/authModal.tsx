@@ -1,7 +1,11 @@
 import { useRouter } from "next/navigation";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/modal";
-import { SIGNIN_API_URL, SIGNUP_API_URL } from "@/variables";
-import { useState } from "react";
+import {
+    CHECK_EMAIL_API_URL,
+    SIGNIN_API_URL,
+    SIGNUP_API_URL,
+} from "@/variables";
+import { useMemo, useState } from "react";
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -22,6 +26,12 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     const [authInfo, setAuthInfo] = useState<AuthInfoProps>(
         {} as AuthInfoProps
     );
+
+    const [emailStatus, setEmailStatus] = useState({
+        message: "",
+        valid: false,
+    });
+
     const authApiUrl = isLoginPage ? SIGNIN_API_URL : SIGNUP_API_URL;
 
     const onChangeAuthInfo = (
@@ -33,6 +43,26 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             return { ...prev };
         });
     };
+
+    const onCheckEmail = useMemo(() => {
+        let checkEmailRequestTimer: NodeJS.Timeout;
+
+        return (e: React.ChangeEvent<HTMLInputElement>) => {
+            clearTimeout(checkEmailRequestTimer);
+            checkEmailRequestTimer = setTimeout(async () => {
+                const response = await fetch(CHECK_EMAIL_API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email: e.target.value }),
+                });
+
+                const data = await response.json();
+                setEmailStatus({message: data.message, valid: response.ok})
+            }, 300);
+        };
+    }, []);
 
     const resetAuthInfo = () => {
         setAuthInfo({
@@ -98,17 +128,18 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                     className="w-full bg-transparent focus:outline-none"
                                     type="text"
                                     value={authInfo.email}
-                                    onChange={onChangeAuthInfo}
+                                    onChange={onCheckEmail}
                                     name="email"
                                 />
                             </div>
+                            <span className="text-xs">{!emailStatus.valid && !isLoginPage && emailStatus.message}</span>
                         </label>
                         <label className="flex flex-col">
                             <h4>비밀번호</h4>
                             <div className="border-b-2 border-point">
                                 <input
                                     className="w-full bg-transparent focus:outline-none"
-                                    type="text"
+                                    type="password"
                                     value={authInfo.password}
                                     onChange={onChangeAuthInfo}
                                     name="password"
@@ -123,7 +154,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                     <div className="border-b-2 border-point">
                                         <input
                                             className="w-full bg-transparent focus:outline-none"
-                                            type="text"
+                                            type="password"
                                             value={authInfo.confirmPassword}
                                             onChange={onChangeAuthInfo}
                                             name="confirmPassword"
@@ -131,7 +162,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                     </div>
                                 </label>
                                 <label className="flex flex-col">
-                                    <h4>별명</h4>
+                                    <h4>이름</h4>
                                     <div className="border-b-2 border-point">
                                         <input
                                             className="w-full bg-transparent focus:outline-none"

@@ -9,3 +9,4 @@ export const UNSPLASH_API_PATH = "/api/unsplash";
 export const SIGNIN_API_URL = "/api/auth/signin";
 export const SIGNUP_API_URL = "/api/auth/signup";
 export const SIGNOUT_API_URL = "/api/auth/signout";
+export const CHECK_EMAIL_API_URL = "/api/auth/check-email";

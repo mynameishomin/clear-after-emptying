@@ -57,7 +57,7 @@ export const ModalHeader = ({ children }: ChildrenProps) => {
 };
 
 export const ModalBody = ({ children }: ChildrenProps) => {
-    return <div className="rounded-lg overflow-auto">{children}</div>;
+    return <div className="overflow-auto">{children}</div>;
 };
 
 export const ModalFooter = ({ children }: ChildrenProps) => {
