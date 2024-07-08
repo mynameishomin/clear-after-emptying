@@ -6,40 +6,12 @@ import {
     SIGNUP_API_URL,
 } from "@/variables";
 import { useMemo, useState } from "react";
+import { createInitialAuthInfo } from "@/functions/auth";
 
 interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
-
-interface FormProps {
-    value: string;
-    valid: boolean;
-    message: string;
-}
-
-interface AuthInfoProps {
-    [key: string]: FormProps;
-    email: FormProps;
-    password: FormProps;
-    confirmPassword: FormProps;
-    name: FormProps;
-}
-
-const createInitialAuthInfo = (): AuthInfoProps => {
-    const initialFormProps: FormProps = {
-        value: "",
-        valid: false,
-        message: "",
-    };
-
-    return {
-        email: { ...initialFormProps },
-        password: { ...initialFormProps },
-        confirmPassword: { ...initialFormProps },
-        name: { ...initialFormProps },
-    };
-};
 
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     const router = useRouter();

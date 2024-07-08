@@ -1,44 +1,32 @@
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
-import { getHashedPassword, isDuplicateEmail } from "@/functions/auth";
+import { AuthFormProps, createUserData, getHashedPassword, isCompletedSignupForm, isDuplicateEmail, isSamePassword } from "@/functions/auth";
 
 const prisma = new PrismaClient();
 
-interface SignupProps {
-    email: string;
-    password: string;
-    confirmPassword: string;
-    name: string;
-}
 
 export async function POST(request: Request) {
-    const { email, password, confirmPassword, name } =
-        (await request.json()) as SignupProps;
+    const signupForm: AuthFormProps = await request.json();
 
-    const hasSignupData = email && password && confirmPassword && name;
-    if (!hasSignupData) {
+    if (!isCompletedSignupForm(signupForm)) {
         return Response.json("회원가입에 필요한 정보가 없습니다.", {
             status: 400,
         });
     }
-
-    const isSamePassword = password === confirmPassword;
-    if (!isSamePassword) {
+    
+    if (!isSamePassword(signupForm)) {
         return Response.json("확인 비밀번호가 일치하지 않습니다.", {
             status: 405,
         });
     }
 
-    if (await isDuplicateEmail(email)) {
+    if (await isDuplicateEmail(signupForm)) {
         return Response.json("이미 등록된 이메일입니다.", {
             status: 405,
         });
     }
 
-    const hashedPassword = getHashedPassword(password);
-    const createdUser = await prisma.user.create({
-        data: { email, name, password: hashedPassword },
-    });
+    const createdUser = await prisma.user.create({ data: createUserData(signupForm) });
 
     const token = jwt.sign(String(createdUser.id), process.env.JWT_SECRET!);
     return Response.json("사용자 생성 성공", {
