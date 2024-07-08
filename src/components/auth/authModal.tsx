@@ -12,42 +12,63 @@ interface AuthModalProps {
     onClose: () => void;
 }
 
-interface AuthInfoProps {
-    [key: string]: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-    name: string;
+interface FormProps {
+    value: string;
+    valid: boolean;
+    message: string;
 }
+
+interface AuthInfoProps {
+    [key: string]: FormProps;
+    email: FormProps;
+    password: FormProps;
+    confirmPassword: FormProps;
+    name: FormProps;
+}
+
+const createInitialAuthInfo = (): AuthInfoProps => {
+    const initialFormProps: FormProps = {
+        value: "",
+        valid: false,
+        message: "",
+    };
+
+    return {
+        email: { ...initialFormProps },
+        password: { ...initialFormProps },
+        confirmPassword: { ...initialFormProps },
+        name: { ...initialFormProps },
+    };
+};
 
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     const router = useRouter();
     const [isLoginPage, setIsLoginPage] = useState(true);
-    const [authInfo, setAuthInfo] = useState<AuthInfoProps>(
-        {} as AuthInfoProps
-    );
-
-    const [emailStatus, setEmailStatus] = useState({
-        message: "",
-        valid: false,
-    });
-
+    const [authInfo, setAuthInfo] = useState(createInitialAuthInfo());
     const authApiUrl = isLoginPage ? SIGNIN_API_URL : SIGNUP_API_URL;
+
+    const isFormValid = isLoginPage
+        ? Boolean(authInfo.email.value && authInfo.password.value)
+        : Boolean(
+              authInfo.email.valid &&
+                  authInfo.password.value === authInfo.confirmPassword.value &&
+                  authInfo.name.value
+          );
 
     const onChangeAuthInfo = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { value, name } = e.target;
         setAuthInfo((prev) => {
-            prev[name] = value;
+            prev[name].value = value;
             return { ...prev };
         });
     };
 
     const onCheckEmail = useMemo(() => {
         let checkEmailRequestTimer: NodeJS.Timeout;
-
         return (e: React.ChangeEvent<HTMLInputElement>) => {
+            onChangeAuthInfo(e);
             clearTimeout(checkEmailRequestTimer);
             checkEmailRequestTimer = setTimeout(async () => {
                 const response = await fetch(CHECK_EMAIL_API_URL, {
@@ -59,19 +80,16 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 });
 
                 const data = await response.json();
-                setEmailStatus({message: data.message, valid: response.ok})
+                setAuthInfo((prev) => {
+                    prev.email.message = data.message;
+                    prev.email.valid = response.ok;
+                    return { ...prev };
+                });
             }, 300);
         };
     }, []);
 
-    const resetAuthInfo = () => {
-        setAuthInfo({
-            email: "",
-            password: "",
-            confirmPassword: "",
-            name: "",
-        });
-    };
+    const resetAuthInfo = () => setAuthInfo(createInitialAuthInfo());
 
     const requestAuth = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -96,7 +114,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         <Modal isOpen={isOpen} onClose={onClose}>
             <form onSubmit={requestAuth}>
                 <ModalHeader>
-                    <div className="flex gap-2 text-xl text-main">
+                    <div className="flex gap-2 text-xl text-gray-400">
                         <button
                             className={`${
                                 isLoginPage &&
@@ -127,12 +145,16 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                 <input
                                     className="w-full bg-transparent focus:outline-none"
                                     type="text"
-                                    value={authInfo.email}
+                                    value={authInfo.email.value}
                                     onChange={onCheckEmail}
                                     name="email"
                                 />
                             </div>
-                            <span className="text-xs">{!emailStatus.valid && !isLoginPage && emailStatus.message}</span>
+                            <span className="text-xs">
+                                {!authInfo.email.valid &&
+                                    !isLoginPage &&
+                                    authInfo.email.message}
+                            </span>
                         </label>
                         <label className="flex flex-col">
                             <h4>비밀번호</h4>
@@ -140,7 +162,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                 <input
                                     className="w-full bg-transparent focus:outline-none"
                                     type="password"
-                                    value={authInfo.password}
+                                    value={authInfo.password.value}
                                     onChange={onChangeAuthInfo}
                                     name="password"
                                 />
@@ -155,11 +177,19 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                         <input
                                             className="w-full bg-transparent focus:outline-none"
                                             type="password"
-                                            value={authInfo.confirmPassword}
+                                            value={
+                                                authInfo.confirmPassword.value
+                                            }
                                             onChange={onChangeAuthInfo}
                                             name="confirmPassword"
                                         />
                                     </div>
+                                    <span className="text-xs">
+                                        {authInfo.confirmPassword.value &&
+                                            authInfo.confirmPassword.value !==
+                                                authInfo.password.value &&
+                                            "비밀번호가 다릅니다."}
+                                    </span>
                                 </label>
                                 <label className="flex flex-col">
                                     <h4>이름</h4>
@@ -167,7 +197,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                         <input
                                             className="w-full bg-transparent focus:outline-none"
                                             type="text"
-                                            value={authInfo.name}
+                                            value={authInfo.name.value}
                                             onChange={onChangeAuthInfo}
                                             name="name"
                                         />
@@ -182,7 +212,11 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                         <button onClick={onClose} type="button">
                             닫기
                         </button>
-                        <button type="submit">
+                        <button
+                            className="disabled:text-gray-400"
+                            type="submit"
+                            disabled={!isFormValid}
+                        >
                             {isLoginPage ? "로그인" : "회원가입"}
                         </button>
                     </div>
