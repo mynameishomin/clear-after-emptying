@@ -8,3 +8,4 @@ export const STUFF_HISTORY = "stuffHistory";
 export const UNSPLASH_API_PATH = "/api/unsplash";
 export const SIGNIN_API_URL = "/api/auth/signin";
 export const SIGNUP_API_URL = "/api/auth/signup";
+export const SIGNOUT_API_URL = "/api/auth/signout";

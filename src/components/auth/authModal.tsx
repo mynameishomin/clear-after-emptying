@@ -1,5 +1,4 @@
-
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/modal";
 import { SIGNIN_API_URL, SIGNUP_API_URL } from "@/variables";
 import { useState } from "react";
@@ -18,7 +17,7 @@ interface AuthInfoProps {
 }
 
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
-    const router = useRouter()
+    const router = useRouter();
     const [isLoginPage, setIsLoginPage] = useState(true);
     const [authInfo, setAuthInfo] = useState<AuthInfoProps>(
         {} as AuthInfoProps
@@ -35,6 +34,15 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         });
     };
 
+    const resetAuthInfo = () => {
+        setAuthInfo({
+            email: "",
+            password: "",
+            confirmPassword: "",
+            name: "",
+        });
+    };
+
     const requestAuth = async (e: React.FormEvent) => {
         e.preventDefault();
         const response = await fetch(authApiUrl, {
@@ -45,8 +53,10 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             body: JSON.stringify(authInfo),
         });
 
-        if(response.ok) {
-            router.push("/")
+        if (response.ok) {
+            resetAuthInfo();
+            onClose();
+            router.refresh();
         } else {
             // 로그인, 회원가입 실패처리
         }
@@ -142,7 +152,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                             닫기
                         </button>
                         <button type="submit">
-                            가입
+                            {isLoginPage ? "로그인" : "회원가입"}
                         </button>
                     </div>
                 </ModalFooter>

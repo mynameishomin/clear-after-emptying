@@ -9,40 +9,21 @@ interface LoginProps {
     password: string;
 }
 
-interface CookiesProps {
-    [key: string]: string;
-}
-
 export async function POST(request: Request) {
     const { email, password } = (await request.json()) as LoginProps;
 
-    const cookieString = request.headers.get("cookie");
-    if (!cookieString) {
-        return Response.json({});
+    const selectedUser = await prisma.user.findUnique({where: { email }});
+    if(!selectedUser) return Response.json("이메일 또는 비밀번호가 틀렸습니다.", { status: 400 });
+
+    const isMatchPassword = bcrypt.compareSync(password, selectedUser.password);
+    if(isMatchPassword) {
+        const token = jwt.sign(String(selectedUser.id), process.env.JWT_SECRET!);
+        return Response.json("로그인 성공", {
+            headers: {
+                "Set-Cookie": `access_token=${token}; Path=/; Expires=${new Date(
+                    Date.now() + 60 * 60 * 24 * 1000 * 3
+                ).toUTCString()}; HttpOnly`,
+            },
+        });
     }
-
-    const cookies = cookieString
-        .split("; ")
-        .reduce((acc: CookiesProps, cookie) => {
-            const [key, value] = cookie.split("=");
-            acc[key] = value;
-            return acc;
-        }, {});
-
-    const token = cookies["access_token"];
-
-    // const hashedPassword = bcrypt.hashSync(password, 8);
-    // const createdUser = await prisma.user.create({
-    //     data: { email, name, password: hashedPassword },
-    // });
-
-    // const token = jwt.sign(String(createdUser.id), process.env.JWT_SECRET!);
-    // return Response.json("사용자 생성 성공", {
-    //     headers: {
-    //         "Set-Cookie": `access_token=${token}; Path=/; Expires=${new Date(
-    //             Date.now() + 60 * 60 * 24 * 1000 * 3
-    //         ).toUTCString()}; HttpOnly`,
-    //     },
-    // });
-    return Response.json({});
 }

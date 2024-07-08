@@ -1,16 +1,31 @@
 "use client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
-import { site } from "@/variables";
+import { SIGNOUT_API_URL, site } from "@/variables";
 import Link from "next/link";
 import AuthModal from "@/components/auth/authModal";
 import { useModal } from "@/components/modal";
 import { useContext } from "react";
 import { AuthContext } from "@/app/context/auth";
+import { useRouter } from "next/navigation";
 
 export const Header = () => {
     const isLogin = useContext(AuthContext);
     const { isOpen, onOpen, onClose } = useModal();
+    const router = useRouter();
+
+    const onLogout = async () => {
+        const response = await fetch(SIGNOUT_API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if(response.ok) {
+            router.refresh();
+        }
+    };
 
     return (
         <header className="fixed inset-0 bottom-auto mt-4 px-2 overflow-hidden sm:flex sm:justify-center z-10">
@@ -44,12 +59,21 @@ export const Header = () => {
                     </nav>
                 </div>
             </div>
-            {!isLogin && (
+            {!isLogin ? (
                 <button
                     className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
                     onClick={onOpen}
+                    type="button"
                 >
                     로그인/회원가입
+                </button>
+            ) : (
+                <button
+                    className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
+                    onClick={onLogout}
+                    type="button"
+                >
+                    로그아웃
                 </button>
             )}
             <AuthModal isOpen={isOpen} onClose={onClose} />
