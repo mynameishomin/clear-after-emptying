@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { redirect } from "next/navigation";
 
 const prisma = new PrismaClient();
 

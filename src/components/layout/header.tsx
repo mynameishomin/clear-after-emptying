@@ -46,7 +46,7 @@ export const Header = () => {
             </div>
             {!isLogin && (
                 <button
-                    className="fixed bottom-10 right-10 py-1 px-2 rounded-lg border-2 border-point bg-sub"
+                    className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
                     onClick={onOpen}
                 >
                     로그인/회원가입

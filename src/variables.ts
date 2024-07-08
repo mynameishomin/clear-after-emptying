@@ -6,3 +6,5 @@ export const site = {
 export const TODAY_STUFF = "todayStuff";
 export const STUFF_HISTORY = "stuffHistory";
 export const UNSPLASH_API_PATH = "/api/unsplash";
+export const SIGNIN_API_URL = "/api/auth/signin";
+export const SIGNUP_API_URL = "/api/auth/signup";
