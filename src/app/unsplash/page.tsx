@@ -6,7 +6,7 @@ import { AuthContext } from "../context/auth";
 const Page = () => {
     const auth = useContext(AuthContext);
     const registerTest = async () => {
-        const response = await fetch("/api/auth/signup", {
+        const response = await fetch("/api/stuff", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
