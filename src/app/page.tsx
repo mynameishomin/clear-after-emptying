@@ -1,8 +1,8 @@
 "use client";
 import Container from "@/components/layout/container";
-import { TodayStuffList } from "@/components/stuff";
+import TodayStuffList from "@/components/stuff/todayStuffList";
 import { site } from "@/variables";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "./context/auth";
 
 export default function Home() {
@@ -32,14 +32,13 @@ export default function Home() {
                             voluptate qui.
                         </p>
                     </div>
-                    {auth && (
-                        <section className="mb-20">
-                            <h2 className="text-xl mb-4">
-                                오늘, 이런 물건을 비웠어요.
-                            </h2>
-                            <TodayStuffList />
-                        </section>
-                    )}
+
+                    <section className="mb-20">
+                        <h2 className="text-xl mb-4">
+                            오늘, 이런 물건을 비웠어요.
+                        </h2>
+                        <TodayStuffList />
+                    </section>
                 </div>
             </Container>
         </div>
