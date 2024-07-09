@@ -1,7 +1,7 @@
 "use client";
 import Container from "@/components/layout/container";
 import { useContext } from "react";
-import { AuthContext } from "../context/auth";
+import { AuthContext } from "../../context/auth";
 
 const Page = () => {
     const auth = useContext(AuthContext);

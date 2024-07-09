@@ -3,7 +3,7 @@ import Container from "@/components/layout/container";
 import TodayStuffList from "@/components/stuff/todayStuffList";
 import { site } from "@/variables";
 import { useContext, useEffect } from "react";
-import { AuthContext } from "./context/auth";
+import { AuthContext } from "../context/auth";
 
 export default function Home() {
     const auth = useContext(AuthContext);

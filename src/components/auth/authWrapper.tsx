@@ -1,4 +1,4 @@
-import { AuthContext } from "@/app/context/auth";
+import { AuthContext } from "@/context/auth";
 import { ComponentType, JSX, useContext } from "react";
 
 const authWrapper = (WrapperComponenet: ComponentType) => {

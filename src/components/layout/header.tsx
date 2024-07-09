@@ -6,7 +6,7 @@ import Link from "next/link";
 import AuthModal from "@/components/auth/authModal";
 import { useModal } from "@/components/modal";
 import { useContext } from "react";
-import { AuthContext } from "@/app/context/auth";
+import { AuthContext } from "@/context/auth";
 import { useRouter } from "next/navigation";
 
 export const Header = () => {
