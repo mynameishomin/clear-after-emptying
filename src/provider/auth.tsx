@@ -1,6 +1,6 @@
 "use client";
 import { ChildrenProps } from "@/type";
-import { AuthContext } from "@/app/context/auth";
+import { AuthContext } from "@/context/auth";
 
 interface AuthProviderProps extends ChildrenProps {
     auth: boolean;

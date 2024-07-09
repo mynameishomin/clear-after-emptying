@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { site } from "@/variables";
-import { AuthProvider } from "@/app/provider/auth";
+import { AuthProvider } from "@/provider/auth";
 
 const doHyeon = Do_Hyeon({ subsets: ["latin"], weight: "400" });
 

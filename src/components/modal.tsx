@@ -43,7 +43,7 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
                         className="absolute inset-0 -z-10"
                         onClick={onClose}
                     ></div>
-                    <div className="flex flex-col w-full max-w-xl max-h-full p-4 border-2 border-point rounded-lg bg-sub overflow-hidden">
+                    <div className="relative flex flex-col w-full max-w-xl max-h-full p-4 border-2 border-point rounded-lg bg-sub overflow-hidden">
                         {children}
                     </div>
                 </>

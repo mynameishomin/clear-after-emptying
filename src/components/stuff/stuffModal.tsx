@@ -1,57 +1,31 @@
-import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { Modal, ModalHeader, ModalBody, ModalFooter, useModal } from "@/components/modal";
 import { StuffProps, StuffUrlsProps } from "@/type";
-import { AnimatePresence, motion } from "framer-motion";
-import { Card } from "@/components/card";
-import {
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader,
-    useModal,
-} from "@/components/modal";
-import UnsplashModal from "./unsplash/unsplashModal";
-import { STUFF_API_URL } from "@/variables";
+import { useState } from "react";
+import UnsplashModal from "@/components/unsplash/unsplashModal";
 
-interface TodayStuffCardProps {
-    stuff: StuffProps;
-    onClick: (isEmpty: boolean) => void;
+interface StuffModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    stuffSubmitCallback: (stuff: StuffProps) => void;
 }
 
-export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
-    return (
-        <Card>
-            <motion.div className="backface-hidden relative flex md:flex-col gap-4 h-full pb-[100%]">
-                <Image className="absolute w-full h-full object-cover" src={stuff.urls.regular} alt={stuff.name} width={200} height={200} />
-
-                <div className="absolute inset-0 flex flex-col p-3 text-sub bg-black/45">
-                    <h3 className="shrink-0 mb-2 text-xl truncate">
-                        {stuff.name}
-                    </h3>
-                    <p className="relative leading-5 text-overflow">
-                        {stuff.summary}
-                    </p>
-                    <span className="shrink-0 mt-auto text-sm text-right">
-                        {new Date(stuff.createdAt).toLocaleDateString()}
-                    </span>
-                </div>
-            </motion.div>
-        </Card>
-    );
-};
-
-export const TodayStuffList = () => {
-    const [todayStuffList, setTodayStuffList] = useState<null | StuffProps[]>(null);
+const StuffModal = ({
+    isOpen,
+    onClose,
+    stuffSubmitCallback,
+}: StuffModalProps) => {
     const [stuff, setStuff] = useState<StuffProps>({} as StuffProps);
-    const stuffModal = useModal();
     const unsplashModal = useModal();
 
-    const getTodayStuffList = useMemo(() => {
-        return async () => {
-            const response = await fetch(STUFF_API_URL);
-            setTodayStuffList(await response.json());
-        }
-    }, []);
+    const onSelectImage = (urls: StuffUrlsProps) => {
+        setStuff((prev) => {
+            prev.urls = urls;
+            return { ...prev };
+        });
+
+        unsplashModal.onClose();
+    };
 
     const onChangeStuff = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -61,15 +35,6 @@ export const TodayStuffList = () => {
             prev[name] = value;
             return { ...prev };
         });
-    };
-
-    const onSelectImage = (urls: StuffUrlsProps) => {
-        setStuff((prev) => {
-            prev.urls = urls;
-            return { ...prev };
-        });
-
-        unsplashModal.onClose();
     };
 
     const onSubmitStuff = async (e: React.FormEvent) => {
@@ -85,78 +50,13 @@ export const TodayStuffList = () => {
         const addedStuff: StuffProps = await response.json();
 
         setStuff({ name: "", summary: "" } as StuffProps);
-        setTodayStuffList((prev) => {
-            if(prev) {
-                prev.push(addedStuff);
-                return [...prev];
-            } else {
-                return null;
-            }
-        });
-        stuffModal.onClose();
+        stuffSubmitCallback(addedStuff);
+        onClose();
     };
-
-    const container = {
-        visible: {
-            transition: {
-                delayChildren: 0.3,
-                staggerChildren: 0.2,
-            },
-        },
-    };
-
-    const item = {
-        hidden: { y: 40, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-        },
-    };
-
-    useEffect(() => {
-        getTodayStuffList(); 
-    }, []);
 
     return (
         <>
-            <AnimatePresence>
-                <motion.ul
-                    className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3"
-                    key="today-stuff-list"
-                    initial="hidden"
-                    animate="visible"
-                    variants={container}
-                >
-                    {todayStuffList?.map(
-                        (stuff: StuffProps, index: number) => {
-                            return (
-                                <motion.li key={index} variants={item} layout layoutId={stuff.id}>
-                                    <TodayStuffCard
-                                        stuff={stuff}
-                                        onClick={() => {}}
-                                    />
-                                </motion.li>
-                            );
-                        }
-                    )}
-                    <motion.li
-                        className="relative pb-[100%]"
-                        key={Date.now()}
-                        layout
-                        layoutId="add-stuff-button"
-                        variants={item}
-                    >
-                        <motion.button
-                            className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
-                            onClick={stuffModal.onOpen}
-                        >
-                            <span className="text-2xl">+</span>
-                        </motion.button>
-                    </motion.li>
-                </motion.ul>
-            </AnimatePresence>
-
-            <Modal isOpen={stuffModal.isOpen} onClose={stuffModal.onClose}>
+            <Modal isOpen={isOpen} onClose={onClose}>
                 <form onSubmit={onSubmitStuff}>
                     <ModalHeader>
                         <h3 className="text-lg">버릴 물건</h3>
@@ -246,7 +146,7 @@ export const TodayStuffList = () => {
                     </ModalBody>
                     <ModalFooter>
                         <div className="flex justify-end gap-3">
-                            <button type="button" onClick={stuffModal.onClose}>
+                            <button type="button" onClick={onClose}>
                                 닫기
                             </button>
                             <button type="submit">버리기</button>
@@ -263,3 +163,5 @@ export const TodayStuffList = () => {
         </>
     );
 };
+
+export default StuffModal;
