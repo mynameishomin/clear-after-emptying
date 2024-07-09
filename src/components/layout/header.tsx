@@ -31,46 +31,48 @@ export const Header = () => {
     return (
         <header className="fixed inset-0 bottom-auto mt-4 px-2 overflow-hidden z-10">
             <Container>
-                <div className="border-2 border-point h-12 pl-4 rounded-md backdrop-blur-3xl sm:pr-4">
-                    <div className="flex h-full items-center">
-                        <div className="mr-auto sm:mr-4 sm:pr-4 sm:border-r-2 sm:border-point">
-                            <Link href="/">{site.title}</Link>
-                        </div>
+                <>
+                    <div className="border-2 border-point h-12 pl-4 rounded-md backdrop-blur-3xl sm:pr-4">
+                        <div className="flex h-full items-center">
+                            <div className="mr-auto sm:mr-4 sm:pr-4 sm:border-r-2 sm:border-point">
+                                <Link href="/">{site.title}</Link>
+                            </div>
 
-                        {/* <button className="sm:hidden">
+                            {/* <button className="sm:hidden">
                         <FontAwesomeIcon
                             className="block w-5 h-5 p-4"
                             icon={faBars}
                         />
                     </button> */}
-                        {/* <nav className="hidden sm:block">
+                            {/* <nav className="hidden sm:block">
                         <ul className="flex space-x-2">
                             <li className="p-2">
                                 <Link href="/history">비운 물건</Link>
                             </li>
                         </ul>
                     </nav> */}
+                        </div>
                     </div>
-                </div>
-                {
-                    !isLogin ? (
-                        <button
-                            className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
-                            onClick={onOpen}
-                            type="button"
-                        >
-                            로그인/회원가입
-                        </button>
-                    ) : null
-                    // <button
-                    //     className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
-                    //     onClick={onLogout}
-                    //     type="button"
-                    // >
-                    //     로그아웃
-                    // </button>
-                }
-                <AuthModal isOpen={isOpen} onClose={onClose} />
+                    {
+                        !isLogin ? (
+                            <button
+                                className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
+                                onClick={onOpen}
+                                type="button"
+                            >
+                                로그인/회원가입
+                            </button>
+                        ) : null
+                        // <button
+                        //     className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
+                        //     onClick={onLogout}
+                        //     type="button"
+                        // >
+                        //     로그아웃
+                        // </button>
+                    }
+                    <AuthModal isOpen={isOpen} onClose={onClose} />
+                </>
             </Container>
         </header>
     );
