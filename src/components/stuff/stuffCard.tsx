@@ -5,13 +5,17 @@ import { Card } from "@/components/card";
 
 interface StuffCardProps {
     stuff: StuffProps;
-    onClick: (isEmpty: boolean) => void;
+    onClick: () => void;
 }
 
 export const StuffCard = ({ stuff, onClick }: StuffCardProps) => {
     return (
         <Card>
-            <motion.div className="backface-hidden relative flex md:flex-col gap-4 h-full pb-[100%]">
+            <motion.button
+                className="backface-hidden relative flex md:flex-col gap-4 w-full h-full pb-[100%] text-left"
+                type="button"
+                onClick={onClick}
+            >
                 <Image
                     className="absolute w-full h-full object-cover"
                     src={stuff.urls.regular}
@@ -31,7 +35,7 @@ export const StuffCard = ({ stuff, onClick }: StuffCardProps) => {
                         {new Date(stuff.createdAt).toLocaleDateString()}
                     </span>
                 </div>
-            </motion.div>
+            </motion.button>
         </Card>
     );
 };
@@ -45,11 +49,17 @@ export const PulseStuffCard = () => {
                         로딩중
                     </h3>
                     <div className="flex flex-col gap-1">
-                        <p className="animate-pulse rounded-sm bg-main">로딩중</p>
-                        <p className="w-3/4 animate-pulse rounded-sm bg-main">로딩중</p>
+                        <p className="animate-pulse rounded-sm bg-main">
+                            로딩중
+                        </p>
+                        <p className="w-3/4 animate-pulse rounded-sm bg-main">
+                            로딩중
+                        </p>
                     </div>
                     <p className="shrink-0 mt-auto text-sm text-right">
-                        <span className="inline-block w-2/5 animate-pulse rounded-sm bg-main">로딩중</span>
+                        <span className="inline-block w-2/5 animate-pulse rounded-sm bg-main">
+                            로딩중
+                        </span>
                     </p>
                 </div>
             </div>

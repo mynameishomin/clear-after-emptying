@@ -94,7 +94,7 @@ const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
                                     <div className="absolute inset-0">
                                         <Image
                                             className="w-full h-full object-cover"
-                                            src={photo.urls.thumb}
+                                            src={photo.urls.regular}
                                             alt={photo.alt_description}
                                             width="200"
                                             height="200"
