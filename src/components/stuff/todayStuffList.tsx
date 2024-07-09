@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { StuffProps } from "@/type";
 import { AnimatePresence, motion } from "framer-motion";
 import { STUFF_API_URL } from "@/variables";
-import authWrapper from "@/components/auth/authWrapper";
 import { PulseStuffCard, StuffCard } from "@/components/stuff/stuffCard";
 import { useModal } from "@/components/modal";
 import StuffModal from "@/components/stuff/stuffModal";
@@ -14,8 +13,12 @@ const TodayStuffList = () => {
     const stuffModal = useModal();
 
     const getTodayStuffList = useMemo(() => {
+        const today = new Date();
+        const startDate = today.toISOString().split("T")[0];
+        today.setDate(today.getDate() + 1);
+        const endDate = today.toISOString().split("T")[0];
         return async () => {
-            const response = await fetch(STUFF_API_URL);
+            const response = await fetch(`${STUFF_API_URL}?startDate=${startDate}&endDate=${endDate}`);
             setTodayStuffList(await response.json());
         };
     }, []);
@@ -56,47 +59,45 @@ const TodayStuffList = () => {
         <>
             <AnimatePresence>
                 {todayStuffList ? (
-                    <>
-                        <motion.ul
-                            className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3"
-                            key="today-stuff-list"
-                            initial="hidden"
-                            animate="visible"
-                            variants={container}
+                    <motion.ul
+                        className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3"
+                        key="today-stuff-list"
+                        initial="hidden"
+                        animate="visible"
+                        variants={container}
+                    >
+                        {todayStuffList.map(
+                            (stuff: StuffProps, index: number) => {
+                                return (
+                                    <motion.li
+                                        key={index}
+                                        variants={item}
+                                        layout
+                                        layoutId={stuff.id}
+                                    >
+                                        <StuffCard
+                                            stuff={stuff}
+                                            onClick={() => {}}
+                                        />
+                                    </motion.li>
+                                );
+                            }
+                        )}
+                        <motion.li
+                            className="relative pb-[100%]"
+                            key="add-stuff-button"
+                            layout
+                            layoutId="add-stuff-button"
+                            variants={item}
                         >
-                            {todayStuffList.map(
-                                (stuff: StuffProps, index: number) => {
-                                    return (
-                                        <motion.li
-                                            key={index}
-                                            variants={item}
-                                            layout
-                                            layoutId={stuff.id}
-                                        >
-                                            <StuffCard
-                                                stuff={stuff}
-                                                onClick={() => {}}
-                                            />
-                                        </motion.li>
-                                    );
-                                }
-                            )}
-                            <motion.li
-                                className="relative pb-[100%]"
-                                key="add-stuff-button"
-                                layout
-                                layoutId="add-stuff-button"
-                                variants={item}
+                            <motion.button
+                                className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
+                                onClick={stuffModal.onOpen}
                             >
-                                <motion.button
-                                    className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
-                                    onClick={stuffModal.onOpen}
-                                >
-                                    <span className="text-2xl">+</span>
-                                </motion.button>
-                            </motion.li>
-                        </motion.ul>
-                    </>
+                                <span className="text-2xl">+</span>
+                            </motion.button>
+                        </motion.li>
+                    </motion.ul>
                 ) : (
                     <div className="w-1/2">
                         <PulseStuffCard />
@@ -112,4 +113,4 @@ const TodayStuffList = () => {
         </>
     );
 };
-export default authWrapper(TodayStuffList);
+export default TodayStuffList;

@@ -1,12 +1,13 @@
 "use client";
+import { useContext } from "react";
 import Container from "@/components/layout/container";
 import TodayStuffList from "@/components/stuff/todayStuffList";
 import { site } from "@/variables";
-import { useContext, useEffect } from "react";
-import { AuthContext } from "../context/auth";
+import { useEffect } from "react";
+import { AuthContext } from "@/context/auth";
 
 export default function Home() {
-    const auth = useContext(AuthContext);
+    const isLogin = useContext(AuthContext);
 
     useEffect(() => {
         const storageStuffHistory = localStorage.getItem("stuffHistory");
@@ -17,8 +18,8 @@ export default function Home() {
     return (
         <div className="flex flex-col md:justify-center w-full">
             <Container>
-                <div>
-                    <div className="mt-36 mb-12">
+                <>
+                    <section className="mt-36 mb-12">
                         <h1 className="mb-1 text-4xl">
                             {site.title}:
                             <br />
@@ -31,15 +32,17 @@ export default function Home() {
                             iure molestias, quibusdam, non dolorem tenetur ullam
                             voluptate qui.
                         </p>
-                    </div>
-
-                    <section className="mb-20">
-                        <h2 className="text-xl mb-4">
-                            오늘, 이런 물건을 비웠어요.
-                        </h2>
-                        <TodayStuffList />
                     </section>
-                </div>
+
+                    {isLogin ? (
+                        <section className="mb-20">
+                            <h2 className="text-xl mb-4">
+                                오늘, 이런 물건을 비웠어요.
+                            </h2>
+                            <TodayStuffList />
+                        </section>
+                    ) : null}
+                </>
             </Container>
         </div>
     );

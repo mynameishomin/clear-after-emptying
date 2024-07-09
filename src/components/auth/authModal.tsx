@@ -6,17 +6,34 @@ import {
     SIGNUP_API_URL,
 } from "@/variables";
 import { useMemo, useState } from "react";
-import { createInitialAuthInfo } from "@/functions/auth";
+import { AnimatePresence, motion } from "framer-motion";
+import { AuthFormProps, AuthInputProps } from "@/functions/auth";
 
 interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
+export const createInitialAuthInfo = (): AuthFormProps => {
+    const initialAuthInputProps: AuthInputProps = {
+        value: "",
+        valid: false,
+        message: "",
+    };
+
+    return {
+        email: { ...initialAuthInputProps },
+        password: { ...initialAuthInputProps },
+        confirmPassword: { ...initialAuthInputProps },
+        name: { ...initialAuthInputProps },
+    };
+};
+
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     const router = useRouter();
     const [isLoginPage, setIsLoginPage] = useState(true);
     const [authInfo, setAuthInfo] = useState(createInitialAuthInfo());
+    const [isLoading, setIsLoading] = useState(false);
     const authApiUrl = isLoginPage ? SIGNIN_API_URL : SIGNUP_API_URL;
 
     const isFormValid = isLoginPage
@@ -51,7 +68,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     body: JSON.stringify({ email: e.target.value }),
                 });
 
-                if(response.ok) {
+                if (response.ok) {
                     const data = await response.json();
                     setAuthInfo((prev) => {
                         prev.email.message = data.message;
@@ -67,6 +84,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
     const requestAuth = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
         const response = await fetch(authApiUrl, {
             method: "POST",
             headers: {
@@ -82,121 +100,142 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         } else {
             // 로그인, 회원가입 실패처리
         }
+        setIsLoading(true);
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
-            <form onSubmit={requestAuth}>
-                <ModalHeader>
-                    <div className="flex gap-2 text-xl text-gray-400">
-                        <button
-                            className={`${
-                                isLoginPage &&
-                                "text-point border-b-2 border-point"
-                            } transition-all`}
-                            onClick={() => setIsLoginPage(true)}
-                            type="button"
-                        >
-                            로그인
-                        </button>
-                        <button
-                            className={`${
-                                !isLoginPage &&
-                                "text-point border-b-2 border-point"
-                            } transition-all`}
-                            onClick={() => setIsLoginPage(false)}
-                            type="button"
-                        >
-                            회원가입
-                        </button>
-                    </div>
-                </ModalHeader>
-                <ModalBody>
-                    <div className="flex flex-col gap-4">
-                        <label className="flex flex-col">
-                            <h4>이메일</h4>
-                            <div className="border-b-2 border-point">
-                                <input
-                                    className="w-full bg-transparent focus:outline-none"
-                                    type="text"
-                                    value={authInfo.email.value}
-                                    onChange={onCheckEmail}
-                                    name="email"
-                                />
-                            </div>
-                            <span className="text-xs">
-                                {!authInfo.email.valid &&
+        <AnimatePresence>
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <form onSubmit={requestAuth}>
+                    <ModalHeader>
+                        <div className="flex gap-2 text-xl text-gray-400">
+                            <button
+                                className={`${
+                                    isLoginPage &&
+                                    "text-point border-b-2 border-point"
+                                } transition-all`}
+                                onClick={() => setIsLoginPage(true)}
+                                type="button"
+                            >
+                                로그인
+                            </button>
+                            <button
+                                className={`${
                                     !isLoginPage &&
-                                    authInfo.email.message}
-                            </span>
-                        </label>
-                        <label className="flex flex-col">
-                            <h4>비밀번호</h4>
-                            <div className="border-b-2 border-point">
-                                <input
-                                    className="w-full bg-transparent focus:outline-none"
-                                    type="password"
-                                    value={authInfo.password.value}
-                                    onChange={onChangeAuthInfo}
-                                    name="password"
-                                />
-                            </div>
-                        </label>
+                                    "text-point border-b-2 border-point"
+                                } transition-all`}
+                                onClick={() => setIsLoginPage(false)}
+                                type="button"
+                            >
+                                회원가입
+                            </button>
+                        </div>
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className="flex flex-col gap-4">
+                            <label className="flex flex-col">
+                                <h4>이메일</h4>
+                                <div className="border-b-2 border-point">
+                                    <input
+                                        className="w-full bg-transparent focus:outline-none"
+                                        type="text"
+                                        value={authInfo.email.value}
+                                        onChange={onCheckEmail}
+                                        name="email"
+                                    />
+                                </div>
+                                <span className="text-xs">
+                                    {!authInfo.email.valid &&
+                                        !isLoginPage &&
+                                        authInfo.email.message}
+                                </span>
+                            </label>
+                            <label className="flex flex-col">
+                                <h4>비밀번호</h4>
+                                <div className="border-b-2 border-point">
+                                    <input
+                                        className="w-full bg-transparent focus:outline-none"
+                                        type="password"
+                                        value={authInfo.password.value}
+                                        onChange={onChangeAuthInfo}
+                                        name="password"
+                                    />
+                                </div>
+                            </label>
 
-                        {!isLoginPage && (
-                            <>
-                                <label className="flex flex-col">
-                                    <h4>비밀번호 확인</h4>
-                                    <div className="border-b-2 border-point">
-                                        <input
-                                            className="w-full bg-transparent focus:outline-none"
-                                            type="password"
-                                            value={
-                                                authInfo.confirmPassword.value
-                                            }
-                                            onChange={onChangeAuthInfo}
-                                            name="confirmPassword"
-                                        />
-                                    </div>
-                                    <span className="text-xs">
-                                        {authInfo.confirmPassword.value &&
-                                            authInfo.confirmPassword.value !==
-                                                authInfo.password.value &&
-                                            "비밀번호가 다릅니다."}
-                                    </span>
-                                </label>
-                                <label className="flex flex-col">
-                                    <h4>이름</h4>
-                                    <div className="border-b-2 border-point">
-                                        <input
-                                            className="w-full bg-transparent focus:outline-none"
-                                            type="text"
-                                            value={authInfo.name.value}
-                                            onChange={onChangeAuthInfo}
-                                            name="name"
-                                        />
-                                    </div>
-                                </label>
-                            </>
-                        )}
-                    </div>
-                </ModalBody>
-                <ModalFooter>
-                    <div className="flex justify-end gap-3">
-                        <button onClick={onClose} type="button">
-                            닫기
-                        </button>
-                        <button
-                            className="disabled:text-gray-400"
-                            type="submit"
-                            disabled={!isFormValid}
+                            {!isLoginPage && (
+                                <>
+                                    <label className="flex flex-col">
+                                        <h4>비밀번호 확인</h4>
+                                        <div className="border-b-2 border-point">
+                                            <input
+                                                className="w-full bg-transparent focus:outline-none"
+                                                type="password"
+                                                value={
+                                                    authInfo.confirmPassword
+                                                        .value
+                                                }
+                                                onChange={onChangeAuthInfo}
+                                                name="confirmPassword"
+                                            />
+                                        </div>
+                                        <span className="text-xs">
+                                            {authInfo.confirmPassword.value &&
+                                                authInfo.confirmPassword
+                                                    .value !==
+                                                    authInfo.password.value &&
+                                                "비밀번호가 다릅니다."}
+                                        </span>
+                                    </label>
+                                    <label className="flex flex-col">
+                                        <h4>이름</h4>
+                                        <div className="border-b-2 border-point">
+                                            <input
+                                                className="w-full bg-transparent focus:outline-none"
+                                                type="text"
+                                                value={authInfo.name.value}
+                                                onChange={onChangeAuthInfo}
+                                                name="name"
+                                            />
+                                        </div>
+                                    </label>
+                                </>
+                            )}
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <div className="flex justify-end gap-3">
+                            <button onClick={onClose} type="button">
+                                닫기
+                            </button>
+                            <button
+                                className="disabled:text-gray-400"
+                                type="submit"
+                                disabled={!isFormValid}
+                            >
+                                {isLoginPage ? "로그인" : "회원가입"}
+                            </button>
+                        </div>
+                    </ModalFooter>
+                    {isLoading && (
+                        <motion.div
+                            className="absolute inset-0 flex justify-center items-center bg-sub"
+                            layout
+                            layoutId="auth-loading"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 1 }}
                         >
-                            {isLoginPage ? "로그인" : "회원가입"}
-                        </button>
-                    </div>
-                </ModalFooter>
-            </form>
-        </Modal>
+                            <p>
+                                {isLoading ? "로그인" : "회원가입"} 중입니다.
+                                <br />
+                                잠시만 기다려주세요.
+                            </p>
+                        </motion.div>
+                    )}
+                </form>
+            </Modal>
+        </AnimatePresence>
     );
 };
 

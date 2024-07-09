@@ -1,17 +1,29 @@
-import { cookies } from "next/headers";
 import { PrismaClient } from "@prisma/client";
-import jwt from "jsonwebtoken";
+import { getAccessToken, verifyAccessToken } from "@/functions/auth";
 const prisma = new PrismaClient();
 
-export async function GET() {
-    const token = cookies().get("access_token")?.value;
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url)
+
+    const token = getAccessToken();
     if (token) {
-        // 버린 물건 목록 내려주기
-        const id = jwt.verify(token, process.env.JWT_SECRET!);
+        const id = verifyAccessToken(token);
 
         if (typeof id === "string") {
+            const startDate = searchParams.get("startDate");
+            const endDate = searchParams.get("endDate");
+            const whereClause: any = {userId: id};
+
+            if(startDate || endDate) {
+                whereClause.createdAt = {
+                    ...(startDate && { gte: new Date(startDate) }),
+                    ...(endDate && { lte: new Date(endDate) }),
+                };
+            }
+
+
             const stuff = await prisma.stuff.findMany({
-                where: { userId: id },
+                where: whereClause,
             });
             return Response.json(stuff, {
                 status: 200,
@@ -23,9 +35,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    const token = cookies().get("access_token")?.value;
+    const token = getAccessToken();
     if (token) {
-        const id = jwt.verify(token, process.env.JWT_SECRET!);
+        const id = verifyAccessToken(token);
 
         const stuff = await request.json();
         const data = await prisma.stuff.create({

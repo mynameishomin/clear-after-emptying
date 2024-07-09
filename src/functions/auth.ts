@@ -1,5 +1,7 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
@@ -17,30 +19,18 @@ export interface AuthFormProps {
     name: AuthInputProps;
 }
 
-export const createInitialAuthInfo = (): AuthFormProps => {
-    const initialAuthInputProps: AuthInputProps = {
-        value: "",
-        valid: false,
-        message: "",
-    };
-
-    return {
-        email: { ...initialAuthInputProps },
-        password: { ...initialAuthInputProps },
-        confirmPassword: { ...initialAuthInputProps },
-        name: { ...initialAuthInputProps },
-    };
+export const isCompletedSignupForm = (signupForm: AuthFormProps) => {
+    const isCompleted = Object.keys(signupForm).every(
+        (key) => signupForm[key].value
+    );
+    return isCompleted;
 };
 
-export const isCompletedSignupForm = (signupForm: AuthFormProps) => {
-    const isCompleted = Object.keys(signupForm).every((key) => signupForm[key].value);
-    return isCompleted;
-}
-
 export const isSamePassword = (signupForm: AuthFormProps) => {
-    const isSame = signupForm.password.value === signupForm.confirmPassword.value;
+    const isSame =
+        signupForm.password.value === signupForm.confirmPassword.value;
     return isSame;
-}
+};
 
 export const isDuplicateEmail = async (email: string) => {
     const selectedUser = await prisma.user.findUnique({ where: { email } });
@@ -52,15 +42,25 @@ export const getHashedPassword = (password: string) => {
 };
 
 export const isEmail = (email: string) => {
-    const emailReg = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,}$/i;
+    const emailReg =
+        /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,}$/i;
     return emailReg.test(email);
-}
+};
 
 export const createUserData = (signupForm: AuthFormProps) => {
-    const {email, name, password} = signupForm;
+    const { email, name, password } = signupForm;
     return {
         email: email.value,
         password: getHashedPassword(password.value),
-        name: name.value, 
-    }
-}
+        name: name.value,
+    };
+};
+
+export const getAccessToken = () => {
+    const accessCookie = cookies().get("access_token");
+    return accessCookie ? accessCookie.value : null;
+};
+
+export const verifyAccessToken = (token: string) => {
+    return jwt.verify(token, process.env.JWT_SECRET!);
+};
