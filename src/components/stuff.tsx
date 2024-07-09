@@ -1,16 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { StuffProps, TodayStuffProps } from "@/type";
-import {
-    createGetStorage,
-    createSetStorage,
-    getNowDate,
-    getRandomArrayItem,
-} from "@/functions";
+import { StuffProps, StuffUrlsProps } from "@/type";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
-import { STUFF_HISTORY, TODAY_STUFF } from "@/variables";
-import { Modla } from "@/components/modal";
+import {
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
+    useModal,
+} from "@/components/modal";
+import UnsplashModal from "./unsplash/unsplashModal";
+import { STUFF_API_URL } from "@/variables";
 
 interface TodayStuffCardProps {
     stuff: StuffProps;
@@ -21,16 +22,17 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
     return (
         <Card>
             <motion.div className="backface-hidden relative flex md:flex-col gap-4 h-full pb-[100%]">
-                <div className="absolute inset-0 flex flex-col p-3">
+                <Image className="absolute w-full h-full object-cover" src={stuff.urls.regular} alt={stuff.name} width={200} height={200} />
+
+                <div className="absolute inset-0 flex flex-col p-3 text-sub bg-black/45">
                     <h3 className="shrink-0 mb-2 text-xl truncate">
-                        {stuff.title}
+                        {stuff.name}
                     </h3>
-                    <p className="relative grow leading-5 overflow-hidden">
+                    <p className="relative leading-5 text-overflow">
                         {stuff.summary}
-                        <span className="absolute inset-0 top-1/2 bg-gradient-to-t from-sub to-transparent"></span>
                     </p>
-                    <span className="shrink-0 text-sm text-right">
-                        {stuff.emptyDate}
+                    <span className="shrink-0 mt-auto text-sm text-right">
+                        {new Date(stuff.createdAt).toLocaleDateString()}
                     </span>
                 </div>
             </motion.div>
@@ -39,62 +41,59 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
 };
 
 export const TodayStuffList = () => {
-    const [todayStuff, setTodayStuff] = useState<null | TodayStuffProps>(null);
-    const [stuffTitle, setStuffTitle] = useState("");
-    const [stuffSummary, setStuffSummary] = useState("");
+    const [todayStuffList, setTodayStuffList] = useState<null | StuffProps[]>(null);
+    const [stuff, setStuff] = useState<StuffProps>({} as StuffProps);
+    const stuffModal = useModal();
+    const unsplashModal = useModal();
 
-    const { dateString } = getNowDate();
-    const [isOpen, setIsOpen] = useState(false);
+    const getTodayStuffList = useMemo(() => {
+        return async () => {
+            const response = await fetch(STUFF_API_URL);
+            setTodayStuffList(await response.json());
+        }
+    }, []);
 
-    const toggleEmptyingStuff = (stuffID: string, index: number) => {
-        return (isEmpty: boolean) => {
-            setTodayStuff((prevTodayStuff) => {
-                if (!prevTodayStuff) return null;
-
-                const newTodayStuffList = [...prevTodayStuff.stuff];
-                newTodayStuffList[index].isEmpty = isEmpty;
-                prevTodayStuff.stuff = newTodayStuffList;
-                setStorageTodayStuff(prevTodayStuff);
-
-                const storageStuffHistory = getStorageStuffHistory();
-
-                newTodayStuffList[index].emptyDate = dateString;
-
-                const stuffIndex = storageStuffHistory.findIndex(
-                    (stuff) => stuff.id === stuffID
-                );
-
-                if (isEmpty) {
-                    storageStuffHistory.push(newTodayStuffList[index]);
-                } else {
-                    storageStuffHistory.splice(stuffIndex);
-                }
-
-                setStorageStuffHistory(storageStuffHistory);
-
-                return {
-                    date: prevTodayStuff.date,
-                    stuff: newTodayStuffList,
-                };
-            });
-        };
+    const onChangeStuff = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { value, name } = e.target;
+        setStuff((prev) => {
+            prev[name] = value;
+            return { ...prev };
+        });
     };
 
-    const throwStuff = () => {
-        const storageTodayStuff = getStorageTodayStuff();
-        storageTodayStuff.stuff.push({
-            id: String(Date.now()),
-            title: stuffTitle,
-            summary: stuffSummary,
-            src: "",
-            isEmpty: true,
-            emptyDate: dateString,
+    const onSelectImage = (urls: StuffUrlsProps) => {
+        setStuff((prev) => {
+            prev.urls = urls;
+            return { ...prev };
         });
-        setStorageTodayStuff(storageTodayStuff);
-        setTodayStuff(storageTodayStuff);
-        setStuffTitle("");
-        setStuffSummary("");
-        setIsOpen(false);
+
+        unsplashModal.onClose();
+    };
+
+    const onSubmitStuff = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const response = await fetch("/api/stuff", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(stuff),
+        });
+
+        const addedStuff: StuffProps = await response.json();
+
+        setStuff({ name: "", summary: "" } as StuffProps);
+        setTodayStuffList((prev) => {
+            if(prev) {
+                prev.push(addedStuff);
+                return [...prev];
+            } else {
+                return null;
+            }
+        });
+        stuffModal.onClose();
     };
 
     const container = {
@@ -115,104 +114,152 @@ export const TodayStuffList = () => {
     };
 
     useEffect(() => {
-        (async () => {
-            const storageTodayStuff = getStorageTodayStuff();
-
-            if (storageTodayStuff && storageTodayStuff.date === dateString) {
-                setTodayStuff(storageTodayStuff);
-            } else {
-                const todayStuffList = await getTodayStuff();
-                const newTodayStuff = {
-                    date: dateString,
-                    stuff: todayStuffList,
-                };
-                setTodayStuff(newTodayStuff);
-                setStorageTodayStuff(newTodayStuff);
-            }
-        })();
-    }, [dateString]);
-
-    if (!todayStuff) return null;
+        getTodayStuffList(); 
+    }, []);
 
     return (
-        <AnimatePresence>
-            <motion.ul
-                className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3"
-                initial="hidden"
-                animate="visible"
-                variants={container}
-            >
-                {todayStuff.stuff.map((stuff: StuffProps, index: number) => {
-                    return (
-                        <motion.li key={stuff.id} layout variants={item}>
-                            <TodayStuffCard
-                                stuff={stuff}
-                                onClick={toggleEmptyingStuff(stuff.id, index)}
-                            />
-                        </motion.li>
-                    );
-                })}
-                <motion.li
-                    className="relative pb-[100%]"
-                    key="add-stuff-card"
-                    layout
-                    variants={item}
+        <>
+            <AnimatePresence>
+                <motion.ul
+                    className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3"
+                    key="today-stuff-list"
+                    initial="hidden"
+                    animate="visible"
+                    variants={container}
                 >
-                    <motion.button
-                        className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
-                        onClick={() => {
-                            setIsOpen((prev) => !prev);
-                        }}
+                    {todayStuffList?.map(
+                        (stuff: StuffProps, index: number) => {
+                            return (
+                                <motion.li key={index} variants={item} layout layoutId={stuff.id}>
+                                    <TodayStuffCard
+                                        stuff={stuff}
+                                        onClick={() => {}}
+                                    />
+                                </motion.li>
+                            );
+                        }
+                    )}
+                    <motion.li
+                        className="relative pb-[100%]"
+                        key={Date.now()}
+                        layout
+                        layoutId="add-stuff-button"
+                        variants={item}
                     >
-                        <span className="text-2xl">+</span>
-                    </motion.button>
-                </motion.li>
-            </motion.ul>
+                        <motion.button
+                            className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
+                            onClick={stuffModal.onOpen}
+                        >
+                            <span className="text-2xl">+</span>
+                        </motion.button>
+                    </motion.li>
+                </motion.ul>
+            </AnimatePresence>
 
-            <Modla isOpen={isOpen} setIsOpen={setIsOpen} onAction={throwStuff}>
-                <div className="flex flex-col gap-4 min-w-64">
-                    <label className="flex flex-col">
-                        <h3 className="mb-1 pl-1">이름</h3>
-                        <input
-                            className="py-1 px-2 rounded-lg border-2 border-point"
-                            type="text"
-                            value={stuffTitle}
-                            onChange={(e) => setStuffTitle(e.target.value)}
-                        />
-                    </label>
+            <Modal isOpen={stuffModal.isOpen} onClose={stuffModal.onClose}>
+                <form onSubmit={onSubmitStuff}>
+                    <ModalHeader>
+                        <h3 className="text-lg">버릴 물건</h3>
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className="flex flex-col gap-4">
+                            <label className="flex flex-col">
+                                <h4>이름</h4>
+                                <div className="border-b-2 border-point">
+                                    <input
+                                        className="w-full bg-transparent focus:outline-none"
+                                        type="text"
+                                        value={stuff.name}
+                                        onChange={onChangeStuff}
+                                        name="name"
+                                    />
+                                </div>
+                            </label>
+                            <label className="flex flex-col">
+                                <h4>설명</h4>
+                                <div className="border-b-2 border-point">
+                                    <textarea
+                                        className="w-full py-0.5 pr-1 bg-transparent focus:outline-none"
+                                        rows={3}
+                                        value={stuff.summary}
+                                        onChange={onChangeStuff}
+                                        name="summary"
+                                    />
+                                </div>
+                            </label>
 
-                    <label className="flex flex-col">
-                        <h3 className="mb-1 pl-1">설명</h3>
-                        <textarea
-                            className="py-1 px-2 rounded-lg border-2 border-point"
-                            rows={3}
-                            value={stuffSummary}
-                            onChange={(e) => setStuffSummary(e.target.value)}
-                        />
-                    </label>
-                </div>
-            </Modla>
-        </AnimatePresence>
+                            <label className="flex flex-col">
+                                <h4 className="mb-1">사진</h4>
+
+                                <div className="relative flex justify-center items-center pb-[60%] border-2 border-point rounded-lg overflow-hidden hover:bg-main transition-all">
+                                    {stuff.urls ? (
+                                        <>
+                                            <div className="absolute inset-0 flex justify-center items-center">
+                                                <svg
+                                                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <circle
+                                                        className="opacity-25"
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="10"
+                                                        stroke="currentColor"
+                                                        stroke-width="4"
+                                                    ></circle>
+                                                    <path
+                                                        className="opacity-75"
+                                                        fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                    ></path>
+                                                </svg>
+                                            </div>
+                                            <Image
+                                                className="absolute inset-0 w-full h-full object-cover"
+                                                src={stuff.urls.regular}
+                                                alt={stuff.name}
+                                                width="200"
+                                                height="200"
+                                            />
+                                            <button
+                                                className="absolute bottom-1 right-1 py-px px-2 text-sm rounded-md border-2 border-point bg-sub"
+                                                type="button"
+                                                onClick={unsplashModal.onOpen}
+                                            >
+                                                바꾸기
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button
+                                            className="absolute inset-0 flex justify-center items-center"
+                                            type="button"
+                                            onClick={unsplashModal.onOpen}
+                                        >
+                                            <span className="text-2xl">+</span>
+                                        </button>
+                                    )}
+                                </div>
+                            </label>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <div className="flex justify-end gap-3">
+                            <button type="button" onClick={stuffModal.onClose}>
+                                닫기
+                            </button>
+                            <button type="submit">버리기</button>
+                        </div>
+                    </ModalFooter>
+                </form>
+            </Modal>
+
+            <UnsplashModal
+                isOpen={unsplashModal.isOpen}
+                onClose={unsplashModal.onClose}
+                onSelect={onSelectImage}
+            />
+        </>
     );
-};
-
-const getStuffList = async (): Promise<StuffProps[]> => {
-    return (await (await fetch("/stuff.json")).json()).stuff;
-};
-
-const getStorageTodayStuff = createGetStorage<TodayStuffProps>(TODAY_STUFF);
-const setStorageTodayStuff = createSetStorage<TodayStuffProps>(TODAY_STUFF);
-
-const getStorageStuffHistory = createGetStorage<StuffProps[]>(STUFF_HISTORY);
-const setStorageStuffHistory = createSetStorage<StuffProps[]>(STUFF_HISTORY);
-
-const getTodayStuff = async () => {
-    const randomStuff = getRandomArrayItem<StuffProps>(await getStuffList(), 0);
-    randomStuff.forEach((item, index) => {
-        item.id = `${Date.now()}${index}`;
-        item.isEmpty = false;
-        item.emptyDate = "";
-    });
-
-    return randomStuff;
 };

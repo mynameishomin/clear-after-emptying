@@ -1,10 +1,15 @@
 export interface StuffProps {
+    [key: string]: string;
     id: string;
-    title: string;
+    name: string;
     summary: string;
-    src: string;
-    isEmpty?: boolean;
-    emptyDate?: string;
+    urls: StuffUrlsProps;
+    createdAt: string;
+}
+
+export interface StuffUrlsProps {
+    regular: string;
+    thumb: string;
 }
 
 export interface StuffHistoryProps extends StuffProps {
@@ -14,4 +19,8 @@ export interface StuffHistoryProps extends StuffProps {
 export interface TodayStuffProps {
     date: string;
     stuff: StuffProps[];
+}
+
+export interface ChildrenProps {
+    children: React.ReactElement;
 }
