@@ -8,11 +8,17 @@ interface StuffCardProps {
     onClick: (isEmpty: boolean) => void;
 }
 
-const StuffCard = ({ stuff, onClick }: StuffCardProps) => {
+export const StuffCard = ({ stuff, onClick }: StuffCardProps) => {
     return (
         <Card>
             <motion.div className="backface-hidden relative flex md:flex-col gap-4 h-full pb-[100%]">
-                <Image className="absolute w-full h-full object-cover" src={stuff.urls.regular} alt={stuff.name} width={200} height={200} />
+                <Image
+                    className="absolute w-full h-full object-cover"
+                    src={stuff.urls.regular}
+                    alt={stuff.name}
+                    width={200}
+                    height={200}
+                />
 
                 <div className="absolute inset-0 flex flex-col p-3 text-sub bg-black/45">
                     <h3 className="shrink-0 mb-2 text-xl truncate">
@@ -30,4 +36,23 @@ const StuffCard = ({ stuff, onClick }: StuffCardProps) => {
     );
 };
 
-export default StuffCard;
+export const PulseStuffCard = () => {
+    return (
+        <Card>
+            <div className="relative pb-[100%]">
+                <div className="absolute inset-0 flex flex-col p-3 text-transparent">
+                    <h3 className="shrink-0 mb-2 text-xl animate-pulse rounded-sm bg-main">
+                        로딩중
+                    </h3>
+                    <div className="flex flex-col gap-1">
+                        <p className="animate-pulse rounded-sm bg-main">로딩중</p>
+                        <p className="w-3/4 animate-pulse rounded-sm bg-main">로딩중</p>
+                    </div>
+                    <p className="shrink-0 mt-auto text-sm text-right">
+                        <span className="inline-block w-2/5 animate-pulse rounded-sm bg-main">로딩중</span>
+                    </p>
+                </div>
+            </div>
+        </Card>
+    );
+};
