@@ -1,9 +1,8 @@
 import { isDuplicateEmail, isEmail } from "@/functions/auth";
 
-export async function POST(request: Request) { 
+export async function POST(request: Request) {
     const email: string = (await request.json()).email;
 
-    console.log(email)
     if (!isEmail(email))
         return Response.json(
             { message: "올바른 이메일 주소를 쓰세요" },

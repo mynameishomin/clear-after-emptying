@@ -3,7 +3,11 @@ import { PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
-const prisma = new PrismaClient();
+let prisma: PrismaClient;
+
+if (typeof window === "undefined") {
+    prisma = new PrismaClient();
+}
 
 export interface AuthInputProps {
     value: string;
