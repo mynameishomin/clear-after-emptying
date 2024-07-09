@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
-import { AuthFormProps, createUserData, getHashedPassword, isCompletedSignupForm, isDuplicateEmail, isSamePassword } from "@/functions/auth";
+import { AuthFormProps, createUserData, isCompletedSignupForm, isDuplicateEmail, isSamePassword } from "@/functions/auth";
 
 const prisma = new PrismaClient();
 

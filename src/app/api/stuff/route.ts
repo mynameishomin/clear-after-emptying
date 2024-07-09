@@ -1,34 +1,35 @@
 import { PrismaClient } from "@prisma/client";
 import { getAccessToken, verifyAccessToken } from "@/functions/auth";
+import { StuffProps } from "@/type";
 const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(request.url);
 
     const token = getAccessToken();
-    if (token) {
-        const id = verifyAccessToken(token);
+    if (!token)
+        return Response.json("로그인 정보가 없습니다.", { status: 422 });
 
-        if (typeof id === "string") {
-            const startDate = searchParams.get("startDate");
-            const endDate = searchParams.get("endDate");
-            const whereClause: any = {userId: id};
+    const id = verifyAccessToken(token);
 
-            if(startDate || endDate) {
-                whereClause.createdAt = {
-                    ...(startDate && { gte: new Date(startDate) }),
-                    ...(endDate && { lte: new Date(endDate) }),
-                };
-            }
+    if (typeof id === "string") {
+        const startDate = searchParams.get("startDate");
+        const endDate = searchParams.get("endDate");
+        const whereClause: any = { userId: id };
 
-
-            const stuff = await prisma.stuff.findMany({
-                where: whereClause,
-            });
-            return Response.json(stuff, {
-                status: 200,
-            });
+        if (startDate || endDate) {
+            whereClause.createdAt = {
+                ...(startDate && { gte: new Date(startDate) }),
+                ...(endDate && { lte: new Date(endDate) }),
+            };
         }
+
+        const stuff = await prisma.stuff.findMany({
+            where: whereClause,
+        });
+        return Response.json(stuff, {
+            status: 200,
+        });
     } else {
         return Response.json("로그인 필요", { status: 400 });
     }
@@ -44,5 +45,33 @@ export async function POST(request: Request) {
             data: { userId: id, ...stuff, createdAt: new Date() },
         });
         return Response.json(data);
+    }
+}
+
+export async function PUT(request: Request) {
+    const token = getAccessToken();
+    if (!token)
+        return Response.json("로그인 정보가 없습니다.", { status: 422 });
+
+    const id = verifyAccessToken(token);
+    const updateData: StuffProps = await request.json();
+
+    if (typeof id === "string") {
+        const stuff = await prisma.stuff.findUnique({ where: { id } });
+
+        if (!stuff)
+            return Response.json("물건 정보가 없습니다.", { status: 422 });
+
+        const updatedStuff = await prisma.stuff.update({
+            where: { id: stuff.id },
+            data: {
+                ...updateData,
+                urls: updateData.urls
+                    ? JSON.parse(JSON.stringify(updateData.urls))
+                    : undefined,
+            },
+        });
+
+        return Response.json(updatedStuff, { status: 200 });
     }
 }
