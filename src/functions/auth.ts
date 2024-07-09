@@ -1,4 +1,4 @@
-// import bcrypt from "bcrypt";
+import bcrypt from 'bcryptjs';
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -42,8 +42,7 @@ export const isSamePassword = (signupForm: AuthFormProps) => {
     return isSame;
 }
 
-export const isDuplicateEmail = async (signupForm: AuthFormProps) => {
-    const email = signupForm.email.value;
+export const isDuplicateEmail = async (email: string) => {
     const selectedUser = await prisma.user.findUnique({ where: { email } });
     return Boolean(selectedUser);
 };

@@ -51,12 +51,14 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     body: JSON.stringify({ email: e.target.value }),
                 });
 
-                const data = await response.json();
-                setAuthInfo((prev) => {
-                    prev.email.message = data.message;
-                    prev.email.valid = response.ok;
-                    return { ...prev };
-                });
+                if(response.ok) {
+                    const data = await response.json();
+                    setAuthInfo((prev) => {
+                        prev.email.message = data.message;
+                        prev.email.valid = true;
+                        return { ...prev };
+                    });
+                }
             }, 300);
         };
     }, []);

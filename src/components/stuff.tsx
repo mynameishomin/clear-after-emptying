@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { StuffProps, StuffUrlsProps, TodayStuffProps } from "@/type";
+import { StuffProps, StuffUrlsProps } from "@/type";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
 import {
@@ -11,6 +11,7 @@ import {
     useModal,
 } from "@/components/modal";
 import UnsplashModal from "./unsplash/unsplashModal";
+import { STUFF_API_URL } from "@/variables";
 
 interface TodayStuffCardProps {
     stuff: StuffProps;
@@ -21,16 +22,17 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
     return (
         <Card>
             <motion.div className="backface-hidden relative flex md:flex-col gap-4 h-full pb-[100%]">
-                <div className="absolute inset-0 flex flex-col p-3">
+                <Image className="absolute w-full h-full object-cover" src={stuff.urls.regular} alt={stuff.name} width={200} height={200} />
+
+                <div className="absolute inset-0 flex flex-col p-3 text-sub bg-black/45">
                     <h3 className="shrink-0 mb-2 text-xl truncate">
                         {stuff.name}
                     </h3>
-                    <p className="relative grow leading-5 overflow-hidden">
+                    <p className="relative leading-5 text-overflow">
                         {stuff.summary}
-                        <span className="absolute inset-0 top-1/2 bg-gradient-to-t from-sub to-transparent"></span>
                     </p>
-                    <span className="shrink-0 text-sm text-right">
-                        {stuff.createdAt}
+                    <span className="shrink-0 mt-auto text-sm text-right">
+                        {new Date(stuff.createdAt).toLocaleDateString()}
                     </span>
                 </div>
             </motion.div>
@@ -39,10 +41,17 @@ export const TodayStuffCard = ({ stuff, onClick }: TodayStuffCardProps) => {
 };
 
 export const TodayStuffList = () => {
-    const [todayStuff, setTodayStuff] = useState<null | TodayStuffProps>(null);
+    const [todayStuffList, setTodayStuffList] = useState<null | StuffProps[]>(null);
     const [stuff, setStuff] = useState<StuffProps>({} as StuffProps);
     const stuffModal = useModal();
     const unsplashModal = useModal();
+
+    const getTodayStuffList = useMemo(() => {
+        return async () => {
+            const response = await fetch(STUFF_API_URL);
+            setTodayStuffList(await response.json());
+        }
+    }, []);
 
     const onChangeStuff = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -65,7 +74,7 @@ export const TodayStuffList = () => {
 
     const onSubmitStuff = async (e: React.FormEvent) => {
         e.preventDefault();
-        await fetch("/api/stuff", {
+        const response = await fetch("/api/stuff", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -73,7 +82,17 @@ export const TodayStuffList = () => {
             body: JSON.stringify(stuff),
         });
 
+        const addedStuff: StuffProps = await response.json();
+
         setStuff({ name: "", summary: "" } as StuffProps);
+        setTodayStuffList((prev) => {
+            if(prev) {
+                prev.push(addedStuff);
+                return [...prev];
+            } else {
+                return null;
+            }
+        });
         stuffModal.onClose();
     };
 
@@ -94,6 +113,10 @@ export const TodayStuffList = () => {
         },
     };
 
+    useEffect(() => {
+        getTodayStuffList(); 
+    }, []);
+
     return (
         <>
             <AnimatePresence>
@@ -104,10 +127,10 @@ export const TodayStuffList = () => {
                     animate="visible"
                     variants={container}
                 >
-                    {todayStuff?.stuff.map(
+                    {todayStuffList?.map(
                         (stuff: StuffProps, index: number) => {
                             return (
-                                <motion.li key={index} layout variants={item}>
+                                <motion.li key={index} variants={item} layout layoutId={stuff.id}>
                                     <TodayStuffCard
                                         stuff={stuff}
                                         onClick={() => {}}
@@ -120,6 +143,7 @@ export const TodayStuffList = () => {
                         className="relative pb-[100%]"
                         key={Date.now()}
                         layout
+                        layoutId="add-stuff-button"
                         variants={item}
                     >
                         <motion.button

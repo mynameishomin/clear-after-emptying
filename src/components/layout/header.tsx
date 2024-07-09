@@ -68,13 +68,14 @@ export const Header = () => {
                     로그인/회원가입
                 </button>
             ) : (
-                <button
-                    className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
-                    onClick={onLogout}
-                    type="button"
-                >
-                    로그아웃
-                </button>
+                null
+                // <button
+                //     className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
+                //     onClick={onLogout}
+                //     type="button"
+                // >
+                //     로그아웃
+                // </button>
             )}
             <AuthModal isOpen={isOpen} onClose={onClose} />
         </header>

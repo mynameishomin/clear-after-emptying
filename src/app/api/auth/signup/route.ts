@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         });
     }
 
-    if (await isDuplicateEmail(signupForm)) {
+    if (await isDuplicateEmail(signupForm.email.value)) {
         return Response.json("이미 등록된 이메일입니다.", {
             status: 405,
         });
