@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { Card } from "@/components/card";
-import { StuffHistoryProps, StuffProps } from "@/type";
+import { StuffProps } from "@/type";
 import { useEffect, useState } from "react";
 import Button from "@/components/button";
 

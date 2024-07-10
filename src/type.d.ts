@@ -12,15 +12,6 @@ export interface StuffUrlsProps {
     thumb: string;
 }
 
-export interface StuffHistoryProps extends StuffProps {
-    [key: string]: string;
-}
-
-export interface TodayStuffProps {
-    date: string;
-    stuff: StuffProps[];
-}
-
 export interface ChildrenProps {
     children: React.ReactElement;
 }
