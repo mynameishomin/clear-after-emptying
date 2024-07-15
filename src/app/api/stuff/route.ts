@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { getAccessToken, verifyAccessToken } from "@/functions/auth";
+import { getAccessToken, verifyAccessToken } from "@/auth/auth.module";
 import { StuffProps } from "@/type";
 const prisma = new PrismaClient();
 

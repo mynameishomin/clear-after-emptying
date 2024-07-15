@@ -1,4 +1,4 @@
-import { AuthFormProps } from "@/functions/auth";
+import { SigninFormProps } from "@/auth/auth.interface";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -6,12 +6,12 @@ import jwt from "jsonwebtoken";
 const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
-    const signinForm: AuthFormProps = await request.json();
+    const signinForm: SigninFormProps = await request.json();
 
-    const selectedUser = await prisma.user.findUnique({where: { email: signinForm.email.value }});
+    const selectedUser = await prisma.user.findUnique({where: { email: signinForm.email }});
     if(!selectedUser) return Response.json("이메일 또는 비밀번호가 틀렸습니다.", { status: 400 });
 
-    const isMatchPassword = bcrypt.compareSync(signinForm.password.value, selectedUser.password);
+    const isMatchPassword = bcrypt.compareSync(signinForm.password, selectedUser.password);
     if(!isMatchPassword) return Response.json("이메일 또는 비밀번호가 틀렸습니다.", { status: 400 });
 
     if(isMatchPassword) {

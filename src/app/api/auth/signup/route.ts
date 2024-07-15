@@ -1,12 +1,17 @@
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
-import { AuthFormProps, createUserData, isCompletedSignupForm, isDuplicateEmail, isSamePassword } from "@/functions/auth";
+import { isEqual } from "@/utils/utils.module";
+import { isSomeEmptySignupForm, isCompletedSignupForm, createUserData, isDuplicateEmail } from "@/auth/auth.module";
+import { SignupFormProps } from "@/auth/auth.interface";
 
 const prisma = new PrismaClient();
 
 
 export async function POST(request: Request) {
-    const signupForm: AuthFormProps = await request.json();
+    const signupForm: SignupFormProps = await request.json();
+    const {password, confirmPassword} = signupForm;
+
+     isSomeEmptySignupForm(signupForm);
 
     if (!isCompletedSignupForm(signupForm)) {
         return Response.json("회원가입에 필요한 정보가 없습니다.", {
@@ -14,13 +19,14 @@ export async function POST(request: Request) {
         });
     }
     
-    if (!isSamePassword(signupForm)) {
+    const isEqualPassword = isEqual(password, confirmPassword);
+    if (!isEqualPassword) {
         return Response.json("확인 비밀번호가 일치하지 않습니다.", {
             status: 405,
         });
     }
 
-    if (await isDuplicateEmail(signupForm.email.value)) {
+    if (await isDuplicateEmail(signupForm.email)) {
         return Response.json("이미 등록된 이메일입니다.", {
             status: 405,
         });

@@ -1,4 +1,4 @@
-import { isDuplicateEmail, isEmail } from "@/functions/auth";
+import { isDuplicateEmail, isEmail } from "@/auth/auth.module";
 
 export async function POST(request: Request) {
     const email: string = (await request.json()).email;
