@@ -17,10 +17,7 @@ export interface SigninFormProps {
     password: string;
 }
 
-export interface SignupFormProps {
-    [key: string]: string;
-    email: string;
-    password: string;
+export interface SignupFormProps extends SigninFormProps {
     confirmPassword: string;
     name: string;
 }

@@ -1,40 +1,41 @@
 import { useRouter } from "next/navigation";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/modal";
-import {
-    CHECK_EMAIL_API_URL,
-    SIGNIN_API_URL,
-    SIGNUP_API_URL,
-} from "@/variables";
+import { AUTH_API_URL, CHECK_EMAIL_API_URL } from "@/variables";
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AuthFormProps, AuthInputProps } from "@/functions/auth";
+import { SignupFormProps, SigninFormProps } from "@/auth/auth.interface";
 
+type AuthMethodType = "signup" | "signin";
 interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-export const createInitialAuthInfo = (): AuthFormProps => {
-    const initialAuthInputProps: AuthInputProps = {
-        value: "",
-        valid: false,
-        message: "",
-    };
-
+const createInitialSignupForm = (): SignupFormProps => {
     return {
-        email: { ...initialAuthInputProps },
-        password: { ...initialAuthInputProps },
-        confirmPassword: { ...initialAuthInputProps },
-        name: { ...initialAuthInputProps },
+        email: "",
+        password: "",
+        confirmPassword: "",
+        name: "",
+    };
+};
+
+const createInitialSigninForm = (): SigninFormProps => {
+    return {
+        email: "",
+        password: "",
     };
 };
 
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     const router = useRouter();
-    const [isLoginPage, setIsLoginPage] = useState(true);
+    const [signupForm, setSignupForm] = useState(createInitialSignupForm());
+    const [signinForm, setSigninForm] = useState(createInitialSigninForm());
+    const [authMethod, setAuthMethod] = useState<AuthMethodType>("signup");
+
+    // const [isLoginPage, setIsLoginPage] = useState(true);
     const [authInfo, setAuthInfo] = useState(createInitialAuthInfo());
     const [isLoading, setIsLoading] = useState(false);
-    const authApiUrl = isLoginPage ? SIGNIN_API_URL : SIGNUP_API_URL;
 
     const isFormValid = isLoginPage
         ? Boolean(authInfo.email.value && authInfo.password.value)
@@ -48,8 +49,13 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { value, name } = e.target;
-        setAuthInfo((prev) => {
-            prev[name].value = value;
+        setSigninForm((prev) => {
+            prev[name] = value;
+            return { ...prev };
+        });
+
+        setSignupForm((prev) => {
+            prev[name] = value;
             return { ...prev };
         });
     };
@@ -80,12 +86,15 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         };
     }, []);
 
-    const resetAuthInfo = () => setAuthInfo(createInitialAuthInfo());
+    const resetAuthInfo = () => {
+        setSignupForm(createInitialSignupForm());
+        setSigninForm(createInitialSigninForm());
+    };
 
     const requestAuth = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        const response = await fetch(authApiUrl, {
+        const response = await fetch(`${AUTH_API_URL}/${authMethod}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -114,7 +123,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                     isLoginPage &&
                                     "text-point border-b-2 border-point"
                                 } transition-all`}
-                                onClick={() => setIsLoginPage(true)}
+                                onClick={() => setAuthMethod("signin")}
                                 type="button"
                             >
                                 로그인
@@ -124,7 +133,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                     !isLoginPage &&
                                     "text-point border-b-2 border-point"
                                 } transition-all`}
-                                onClick={() => setIsLoginPage(false)}
+                                onClick={() => setAuthMethod("signup")}
                                 type="button"
                             >
                                 회원가입

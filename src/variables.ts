@@ -6,9 +6,11 @@ export const site = {
 
 export const UNSPLASH_API_PATH = "/api/unsplash";
 
-export const SIGNIN_API_URL = "/api/auth/signin";
-export const SIGNUP_API_URL = "/api/auth/signup";
-export const SIGNOUT_API_URL = "/api/auth/signout";
-export const CHECK_EMAIL_API_URL = "/api/auth/check-email";
+export const API_URL = "/api";
+export const AUTH_API_URL = `${API_URL}/auth`;
+export const SIGNIN_API_URL = `${AUTH_API_URL}/signin`;
+export const SIGNUP_API_URL = `${AUTH_API_URL}/signup`;
+export const SIGNOUT_API_URL = `${AUTH_API_URL}/signout`;
+export const CHECK_EMAIL_API_URL = `${AUTH_API_URL}/check-email`;
 
 export const STUFF_API_URL = "/api/stuff"
