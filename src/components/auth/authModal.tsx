@@ -83,22 +83,6 @@ const SignupForm = ({ onClose }: { onClose: () => void }) => {
         }
     };
 
-    const onSignup_ = async (e: React.FormEvent) => {
-        const response = await fetch("/api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(signupForm),
-        });
-
-        if (response.ok) {
-            showToast("회원가입에 성공했습니다.");
-        } else {
-            showAlert("회원가입에 실패했습니다.");
-        }
-    };
-
     return (
         <form className="flex flex-col gap-4" onSubmit={onSignup}>
             <div className="flex flex-col gap-4">

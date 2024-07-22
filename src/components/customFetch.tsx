@@ -2,6 +2,7 @@
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Alert, AlertProps } from "./alert";
+import { Toast, ToastsProps } from "./toast";
 
 export async function customFetch(
     url: string,
@@ -11,22 +12,12 @@ export async function customFetch(
         const response = await fetch(url, options);
         const data = await response.json();
 
-        switch (data.action.type) {
-            case "Alert":
-                const event = new CustomEvent("alert", {
+        if (data.action.type) {
+            window.dispatchEvent(
+                new CustomEvent(data.action.type, {
                     detail: { ...data.action },
-                });
-                window.dispatchEvent(event);
-        }
-
-        if (data.success) {
-            const event = new CustomEvent("alert", {
-                detail: data.message,
-            });
-            window.dispatchEvent(event);
-        } else {
-            const event = new CustomEvent("toast", { detail: data.message });
-            window.dispatchEvent(event);
+                })
+            );
         }
 
         return data;
@@ -39,39 +30,39 @@ export async function customFetch(
 
 export const FetchDataEventListenerComponent = () => {
     const [alert, setAlert] = useState<AlertProps | null>(null);
+    const [toasts, setToast] = useState<ToastsProps[]>([]);
     const closeAlert = () => {
         setAlert(null);
     };
     useEffect(() => {
-        const handleApiSuccess = (event: CustomEvent) => {
-            // alert(`Success: ${event.detail}`);
-        };
-
-        const handleApiError = (event: CustomEvent) => {
-            // alert(`Error: ${event.detail}`);
-        };
-
         const alertHandler = (event: CustomEvent<AlertProps>) => {
             setAlert({ title: event.detail.title, text: event.detail.text });
         };
+        const toastHandler = (event: CustomEvent<ToastsProps>) => {
+            setToast((prev) => {
+                prev.push({ ...event.detail });
+                return [...prev];
+            });
+
+            setTimeout(() => {
+                setToast((prev) => {
+                    prev.shift();
+                    return [...prev];
+                });
+            }, 3000);
+        };
 
         window.addEventListener("alert", alertHandler as EventListener);
-        window.addEventListener("toast", handleApiError as EventListener);
+        window.addEventListener("toast", toastHandler as EventListener);
 
         return () => {
-            window.removeEventListener(
-                "alert",
-                handleApiSuccess as EventListener
-            );
-            window.removeEventListener(
-                "toast",
-                handleApiError as EventListener
-            );
+            window.removeEventListener("alert", alertHandler as EventListener);
+            window.removeEventListener("toast", alertHandler as EventListener);
         };
     }, []);
-    console.log(alert);
     return (
-        <div>
+        <div className="relative z-50">
+            <Toast toasts={toasts} />
             <AnimatePresence>
                 {alert && (
                     <Alert
