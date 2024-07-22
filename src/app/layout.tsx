@@ -7,6 +7,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { site } from "@/variables";
 import { AuthProvider } from "@/provider/auth";
+import { FetchDataEventListenerComponent } from "@/components/customFetch";
 
 const doHyeon = Do_Hyeon({ subsets: ["latin"], weight: "400" });
 
@@ -32,6 +33,7 @@ export default function RootLayout({
     return (
         <html lang="ko" className="bg-sub">
             <body className={doHyeon.className}>
+                <FetchDataEventListenerComponent />
                 <AuthProvider auth={auth}>
                     <div className="w-screen min-h-screen overflow-hidden text-point break-keep">
                         <Header />

@@ -44,13 +44,13 @@ export const Header = () => {
                             icon={faBars}
                         />
                     </button> */}
-                            {/* <nav className="hidden sm:block">
-                        <ul className="flex space-x-2">
-                            <li className="p-2">
-                                <Link href="/history">비운 물건</Link>
-                            </li>
-                        </ul>
-                    </nav> */}
+                            <nav className="hidden sm:block">
+                                <ul className="flex space-x-2">
+                                    {/* <li className="p-2">
+                                        <Link href="/history">비운 물건</Link>
+                                    </li> */}
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                     {!isLogin ? (

@@ -5,7 +5,7 @@ import {
     SIGNIN_API_URL,
     SIGNUP_API_URL,
 } from "@/variables";
-import { useMemo, useState } from "react";
+import { Dispatch, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SignupFormProps, SigninFormProps } from "@/auth/auth.interface";
 
@@ -14,6 +14,17 @@ interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
+
+const onChangeFormState = (modifier: Dispatch<any>) => {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { value, name } = e.target;
+
+        modifier((prev: any) => {
+            prev[name] = value;
+            return { ...prev };
+        });
+    };
+};
 
 const SignupForm = ({ onClose }: { onClose: () => void }) => {
     const createInitialSignupForm = (): SignupFormProps => {
@@ -30,21 +41,12 @@ const SignupForm = ({ onClose }: { onClose: () => void }) => {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
-    const onChangeAuthInfo = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { value, name } = e.target;
-
-        setSignupForm((prev) => {
-            prev[name] = value;
-            return { ...prev };
-        });
-    };
+    const onChangeSignupForm = onChangeFormState(setSignupForm);
 
     const onCheckEmail = useMemo(() => {
         let checkEmailRequestTimer: NodeJS.Timeout;
         return (e: React.ChangeEvent<HTMLInputElement>) => {
-            onChangeAuthInfo(e);
+            onChangeSignupForm(e);
             clearTimeout(checkEmailRequestTimer);
             checkEmailRequestTimer = setTimeout(async () => {
                 const response = await fetch(CHECK_EMAIL_API_URL, {
@@ -58,7 +60,7 @@ const SignupForm = ({ onClose }: { onClose: () => void }) => {
                 setEmailValid(response.ok);
             }, 300);
         };
-    }, []);
+    }, [onChangeSignupForm]);
 
     const onSignup = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -73,10 +75,27 @@ const SignupForm = ({ onClose }: { onClose: () => void }) => {
 
         if (response.ok) {
             onClose();
+            setSignupForm(createInitialSignupForm());
             setIsLoading(false);
             router.refresh();
         } else {
             // 로그인, 회원가입 실패처리
+        }
+    };
+
+    const onSignup_ = async (e: React.FormEvent) => {
+        const response = await fetch("/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(signupForm),
+        });
+
+        if (response.ok) {
+            showToast("회원가입에 성공했습니다.");
+        } else {
+            showAlert("회원가입에 실패했습니다.");
         }
     };
 
@@ -107,7 +126,7 @@ const SignupForm = ({ onClose }: { onClose: () => void }) => {
                             className="w-full bg-transparent focus:outline-none"
                             type="password"
                             value={signupForm.password}
-                            onChange={onChangeAuthInfo}
+                            onChange={onChangeSignupForm}
                             name="password"
                         />
                     </div>
@@ -120,7 +139,7 @@ const SignupForm = ({ onClose }: { onClose: () => void }) => {
                             className="w-full bg-transparent focus:outline-none"
                             type="password"
                             value={signupForm.confirmPassword}
-                            onChange={onChangeAuthInfo}
+                            onChange={onChangeSignupForm}
                             name="confirmPassword"
                         />
                     </div>
@@ -138,7 +157,7 @@ const SignupForm = ({ onClose }: { onClose: () => void }) => {
                             className="w-full bg-transparent focus:outline-none"
                             type="text"
                             value={signupForm.name}
-                            onChange={onChangeAuthInfo}
+                            onChange={onChangeSignupForm}
                             name="name"
                         />
                     </div>
@@ -180,16 +199,9 @@ const SigninForm = ({ onClose }: { onClose: () => void }) => {
 
     const [signinForm, setSigninForm] = useState(createInitialSigninForm());
     const [isLoading, setIsLoading] = useState(false);
-    const onChangeAuthInfo = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { value, name } = e.target;
 
-        setSigninForm((prev) => {
-            prev[name] = value;
-            return { ...prev };
-        });
-    };
+    const onChangeSigninForm = onChangeFormState(setSigninForm);
+
     const router = useRouter();
 
     const onSignup = async (e: React.FormEvent) => {
@@ -205,6 +217,7 @@ const SigninForm = ({ onClose }: { onClose: () => void }) => {
 
         if (response.ok) {
             onClose();
+            setSigninForm(createInitialSigninForm());
             setIsLoading(false);
             router.refresh();
         } else {
@@ -222,7 +235,7 @@ const SigninForm = ({ onClose }: { onClose: () => void }) => {
                             className="w-full bg-transparent focus:outline-none"
                             type="text"
                             value={signinForm.email}
-                            onChange={onChangeAuthInfo}
+                            onChange={onChangeSigninForm}
                             name="email"
                         />
                     </div>
@@ -234,7 +247,7 @@ const SigninForm = ({ onClose }: { onClose: () => void }) => {
                             className="w-full bg-transparent focus:outline-none"
                             type="password"
                             value={signinForm.password}
-                            onChange={onChangeAuthInfo}
+                            onChange={onChangeSigninForm}
                             name="password"
                         />
                     </div>
