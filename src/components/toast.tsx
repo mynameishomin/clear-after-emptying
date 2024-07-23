@@ -25,7 +25,7 @@ export const Toast = ({ toasts }: { toasts: ToastsProps[] }) => {
                                 exit={{ opacity: 0, y: 0, x: 50 }}
                                 key={index}
                             >
-                                {toast.text + toast.id}
+                                {toast.text}
                             </motion.li>
                         );
                     })}

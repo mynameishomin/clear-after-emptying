@@ -34,7 +34,7 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
     return (
         <AnimatePresence>
             <motion.div
-                className="fixed inset-0 flex justify-center items-center p-4 pt-20 backdrop-blur-sm opacity-0"
+                className="fixed inset-0 flex justify-center items-center p-4 pt-8 backdrop-blur-sm opacity-0"
                 animate={isOpen ? "open" : "close"}
                 variants={modalVariants}
             >
@@ -43,8 +43,10 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
                         className="absolute inset-0 -z-10"
                         onClick={onClose}
                     ></div>
-                    <div className="relative flex flex-col w-full max-w-xl max-h-full p-4 border-2 border-point rounded-lg bg-sub overflow-hidden">
-                        {children}
+                    <div className="relative w-full h-full flex justify-center py-12">
+                        <div className="relative flex flex-col w-full max-w-lg max-h-full p-4 border-2 border-point rounded-lg bg-sub overflow-hidden">
+                            {children}
+                        </div>
                     </div>
                 </>
             </motion.div>
@@ -61,7 +63,11 @@ export const ModalBody = ({ children }: ChildrenProps) => {
 };
 
 export const ModalFooter = ({ children }: ChildrenProps) => {
-    return <div className="mt-4">{children}</div>;
+    return (
+        <div className="mt-auto">
+            <div className="mt-4">{children}</div>
+        </div>
+    );
 };
 
 // interface ModalProps_ {

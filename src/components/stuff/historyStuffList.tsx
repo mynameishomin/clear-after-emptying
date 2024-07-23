@@ -2,9 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { StuffProps } from "@/type";
 import { AnimatePresence, motion } from "framer-motion";
 import { STUFF_API_URL } from "@/variables";
-import { PulseStuffCard, StuffCard } from "@/components/stuff/stuffCard";
-import { useModal } from "@/components/modal";
-import StuffModal from "@/components/stuff/stuffModal";
 import StuffCardList from "./stuffCardList";
 
 const HistoryStuffList = () => {
@@ -34,7 +31,7 @@ const HistoryStuffList = () => {
     return (
         <>
             <AnimatePresence>
-                {historyStuffList && (
+                {historyStuffList?.length !== 0 && (
                     <section className="mb-20">
                         <h2 className="text-xl mb-4">
                             지금까지, 이런 물건을 비웠어요.

@@ -40,6 +40,8 @@ const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
         setPhotoList(json.data.results);
     };
 
+    console.log(photoList);
+
     useEffect(() => {
         getPhotoList("stuff");
     }, []);
@@ -85,31 +87,35 @@ const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
                 </ModalHeader>
                 <ModalBody>
                     <ul className="grid grid-cols-2 gap-2">
-                        {photoList?.map((photo) => {
-                            return (
-                                <li
-                                    className="relative pb-[100%] overflow-hidden rounded-lg border-2 border-point"
-                                    key={photo.id}
-                                >
-                                    <div className="absolute inset-0">
-                                        <Image
-                                            className="w-full h-full object-cover"
-                                            src={photo.urls.regular}
-                                            alt={photo.alt_description}
-                                            width="200"
-                                            height="200"
-                                        />
-                                    </div>
-                                    <button
-                                        className="absolute bottom-1 right-1 py-px px-2 text-sm rounded-md border-2 border-point bg-sub"
-                                        type="button"
-                                        onClick={() => onSelect(photo.urls)}
+                        {!photoList || photoList?.length === 0 ? (
+                            <li>검색 결과가 없습니다.</li>
+                        ) : (
+                            photoList?.map((photo) => {
+                                return (
+                                    <li
+                                        className="relative pb-[100%] overflow-hidden rounded-lg border-2 border-point"
+                                        key={photo.id}
                                     >
-                                        선택
-                                    </button>
-                                </li>
-                            );
-                        })}
+                                        <div className="absolute inset-0">
+                                            <Image
+                                                className="w-full h-full object-cover"
+                                                src={photo.urls.regular}
+                                                alt={photo.alt_description}
+                                                width="200"
+                                                height="200"
+                                            />
+                                        </div>
+                                        <button
+                                            className="absolute bottom-1 right-1 py-px px-2 text-sm rounded-md border-2 border-point bg-sub"
+                                            type="button"
+                                            onClick={() => onSelect(photo.urls)}
+                                        >
+                                            선택
+                                        </button>
+                                    </li>
+                                );
+                            })
+                        )}
                     </ul>
                 </ModalBody>
                 <ModalFooter>

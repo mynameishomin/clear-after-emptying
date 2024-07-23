@@ -20,7 +20,7 @@ export default function Home() {
         <div className="flex flex-col md:justify-center w-full">
             <Container>
                 <>
-                    <section className="mt-20 lg:mt-36 mb-12">
+                    <section className="mt-20 lg:mt-22 mb-12">
                         <h1 className="mb-1 text-4xl">
                             {site.title}:
                             <br />
