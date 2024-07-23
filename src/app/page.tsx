@@ -6,15 +6,9 @@ import { site } from "@/variables";
 import { useEffect } from "react";
 import { AuthContext } from "@/context/auth";
 import HistoryStuffList from "@/components/stuff/historyStuffList";
-import { Alert } from "@/components/alert";
-import { customFetch } from "@/components/customFetch";
 
 export default function Home() {
     const isLogin = useContext(AuthContext);
-
-    const test = () => {
-        customFetch("/api/test");
-    };
 
     useEffect(() => {
         const storageStuffHistory = localStorage.getItem("stuffHistory");
@@ -27,7 +21,6 @@ export default function Home() {
             <Container>
                 <>
                     <section className="mt-20 lg:mt-36 mb-12">
-                        <button onClick={test}>테스트</button>
                         <h1 className="mb-1 text-4xl">
                             {site.title}:
                             <br />

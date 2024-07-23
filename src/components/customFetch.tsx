@@ -12,7 +12,7 @@ export async function customFetch(
         const response = await fetch(url, options);
         const data = await response.json();
 
-        if (data.action.type) {
+        if (Object.hasOwn(data, "action")) {
             window.dispatchEvent(
                 new CustomEvent(data.action.type, {
                     detail: { ...data.action },
@@ -20,7 +20,7 @@ export async function customFetch(
             );
         }
 
-        return data;
+        return response;
     } catch (error) {
         const event = new CustomEvent("error", { detail: "Network error" });
         window.dispatchEvent(event);
@@ -40,7 +40,10 @@ export const FetchDataEventListenerComponent = () => {
         };
         const toastHandler = (event: CustomEvent<ToastsProps>) => {
             setToast((prev) => {
-                prev.push({ ...event.detail });
+                prev.push({
+                    text: event.detail.text,
+                    id: String(Date.now()),
+                });
                 return [...prev];
             });
 

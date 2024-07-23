@@ -7,7 +7,11 @@ export interface ToastsProps {
 
 export const Toast = ({ toasts }: { toasts: ToastsProps[] }) => {
     return (
-        <ul className="fixed right-0 top-0">
+        <motion.ul
+            className="fixed inset-0 bottom-auto flex flex-col items-end"
+            layout
+            layoutId="toast-ul"
+        >
             <AnimatePresence>
                 {toasts.length !== 0 &&
                     toasts.map((toast, index) => {
@@ -16,9 +20,9 @@ export const Toast = ({ toasts }: { toasts: ToastsProps[] }) => {
                                 className="relative"
                                 layout
                                 layoutId={toast.id}
-                                initial={{ opacity: 0, y: -50 }}
+                                initial={{ opacity: 0, y: 50 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 50 }}
+                                exit={{ opacity: 0, y: 0, x: 50 }}
                                 key={index}
                             >
                                 {toast.text + toast.id}
@@ -26,6 +30,6 @@ export const Toast = ({ toasts }: { toasts: ToastsProps[] }) => {
                         );
                     })}
             </AnimatePresence>
-        </ul>
+        </motion.ul>
     );
 };

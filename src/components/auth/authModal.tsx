@@ -8,6 +8,7 @@ import {
 import { Dispatch, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SignupFormProps, SigninFormProps } from "@/auth/auth.interface";
+import { customFetch } from "@/components/customFetch";
 
 type AuthMethodType = "signup" | "signin";
 interface AuthModalProps {
@@ -65,7 +66,7 @@ const SignupForm = ({ onClose }: { onClose: () => void }) => {
     const onSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        const response = await fetch(SIGNUP_API_URL, {
+        const response = await customFetch(SIGNUP_API_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -76,11 +77,9 @@ const SignupForm = ({ onClose }: { onClose: () => void }) => {
         if (response.ok) {
             onClose();
             setSignupForm(createInitialSignupForm());
-            setIsLoading(false);
             router.refresh();
-        } else {
-            // 로그인, 회원가입 실패처리
         }
+        setIsLoading(false);
     };
 
     return (
@@ -191,7 +190,7 @@ const SigninForm = ({ onClose }: { onClose: () => void }) => {
     const onSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        const response = await fetch(SIGNIN_API_URL, {
+        const response = await customFetch(SIGNIN_API_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -202,11 +201,9 @@ const SigninForm = ({ onClose }: { onClose: () => void }) => {
         if (response.ok) {
             onClose();
             setSigninForm(createInitialSigninForm());
-            setIsLoading(false);
             router.refresh();
-        } else {
-            // 로그인, 회원가입 실패처리
         }
+        setIsLoading(false);
     };
 
     return (
