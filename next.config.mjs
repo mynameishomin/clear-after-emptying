@@ -11,12 +11,6 @@ const nextConfig = {
         ],
         unoptimized: true,
     },
-    webpack: (config, { isServer }) => {
-        if (!isServer) {
-            config.resolve.alias["@prisma/client"] = false;
-        }
-        return config;
-    },
 };
 
 export default nextConfig;
