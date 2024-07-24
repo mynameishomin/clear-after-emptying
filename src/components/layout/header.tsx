@@ -29,7 +29,7 @@ export const Header = () => {
     };
 
     return (
-        <header className="fixed inset-0 bottom-auto mt-4 px-2 overflow-hidden z-10">
+        <header className="fixed inset-0 bottom-auto mt-4 px-2 overflow-hidden z-50">
             <Container>
                 <>
                     <div className="border-2 border-point h-12 pl-4 rounded-md backdrop-blur-3xl sm:pr-4">

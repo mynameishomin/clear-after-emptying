@@ -37,8 +37,8 @@ export default function Home() {
                     </section>
 
                     {isLogin && (
-                        <>
-                            <section className="mb-20">
+                        <div>
+                            <section className="relative mb-20 z-10">
                                 <h2 className="text-xl mb-4">
                                     오늘, 이런 물건을 비웠어요.
                                 </h2>
@@ -46,7 +46,7 @@ export default function Home() {
                             </section>
 
                             <HistoryStuffList />
-                        </>
+                        </div>
                     )}
                 </>
             </Container>

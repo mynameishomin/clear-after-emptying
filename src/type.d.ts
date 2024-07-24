@@ -1,10 +1,10 @@
 export interface StuffProps {
     [key: string]: string;
-    id: string;
+    id?: string;
     name: string;
     summary: string;
     urls: StuffUrlsProps;
-    createdAt: string;
+    createdAt?: string;
 }
 
 export interface StuffUrlsProps {

@@ -37,15 +37,29 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     const token = getAccessToken();
-    if (token) {
-        const id = verifyAccessToken(token);
 
-        const stuff = await request.json();
-        const data = await prisma.stuff.create({
-            data: { userId: id, ...stuff, createdAt: new Date() },
-        });
-        return Response.json(data);
+    if (!token) return false;
+
+    const id = verifyAccessToken(token);
+    const stuff = await request.json();
+
+    if (!stuff.name || !stuff.summary || !stuff.urls) {
+        return Response.json(
+            {
+                action: {
+                    type: "alert",
+                    title: "버릴 물건 정보가 부족합니다.",
+                    text: "버릴 물건 정보를 모두 입력해주세요.",
+                },
+            },
+            { status: 422 }
+        );
     }
+
+    const data = await prisma.stuff.create({
+        data: { userId: id, ...stuff, createdAt: new Date() },
+    });
+    return Response.json(data);
 }
 
 export async function PUT(request: Request) {

@@ -10,6 +10,7 @@ export async function customFetch(
 ): Promise<any> {
     try {
         const response = await fetch(url, options);
+        const cloneResponse = response.clone();
         const data = await response.json();
 
         if (Object.hasOwn(data, "action")) {
@@ -20,7 +21,7 @@ export async function customFetch(
             );
         }
 
-        return response;
+        return cloneResponse;
     } catch (error) {
         const event = new CustomEvent("error", { detail: "Network error" });
         window.dispatchEvent(event);

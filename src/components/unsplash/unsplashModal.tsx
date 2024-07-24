@@ -40,8 +40,6 @@ const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
         setPhotoList(json.data.results);
     };
 
-    console.log(photoList);
-
     useEffect(() => {
         getPhotoList("stuff");
     }, []);

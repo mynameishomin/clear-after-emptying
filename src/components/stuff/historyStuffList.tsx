@@ -11,19 +11,14 @@ const HistoryStuffList = () => {
 
     const getHistoryStuffList = useMemo(() => {
         const today = new Date();
-        today.setDate(today.getDate() + 1);
-        const startDate = today.toISOString().split("T")[0];
-        today.setDate(today.getDate() + 1);
+        today.setDate(today.getDate() - 1);
         const endDate = today.toISOString().split("T")[0];
         return async () => {
-            const response = await fetch(
-                `${STUFF_API_URL}?startDate=${startDate}&endDate=${endDate}`
-            );
+            const response = await fetch(`${STUFF_API_URL}?endDate=${endDate}`);
             setHistoryStuffList(await response.json());
         };
     }, []);
 
-    console.log(historyStuffList);
     useEffect(() => {
         getHistoryStuffList();
     }, [getHistoryStuffList]);

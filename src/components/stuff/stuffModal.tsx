@@ -9,6 +9,7 @@ import {
 import { StuffProps, StuffUrlsProps } from "@/type";
 import { useState } from "react";
 import UnsplashModal from "@/components/unsplash/unsplashModal";
+import { customFetch } from "@/components/customFetch";
 
 interface StuffModalProps {
     isOpen: boolean;
@@ -45,7 +46,7 @@ const StuffModal = ({
 
     const onSubmitStuff = async (e: React.FormEvent) => {
         e.preventDefault();
-        const response = await fetch("/api/stuff", {
+        const response = await customFetch("/api/stuff", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -53,11 +54,14 @@ const StuffModal = ({
             body: JSON.stringify(stuff),
         });
 
-        const addedStuff: StuffProps = await response.json();
+        if (response.ok) {
+            console.log(response);
+            const addedStuff: StuffProps = await response.json();
 
-        setStuff({ name: "", summary: "" } as StuffProps);
-        stuffSubmitCallback(addedStuff);
-        onClose();
+            setStuff({ name: "", summary: "" } as StuffProps);
+            stuffSubmitCallback(addedStuff);
+            onClose();
+        }
     };
 
     return (
