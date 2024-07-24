@@ -32,7 +32,9 @@ export const StuffCard = ({ stuff, onClick }: StuffCardProps) => {
                         {stuff.summary}
                     </p>
                     <span className="shrink-0 mt-auto text-sm text-right">
-                        {new Date(stuff.createdAt).toLocaleDateString()}
+                        {new Date(
+                            stuff.createdAt as string
+                        ).toLocaleDateString()}
                     </span>
                 </div>
             </motion.button>
@@ -44,7 +46,7 @@ export const PulseStuffCard = () => {
     return (
         <Card>
             <div className="relative pb-[100%]">
-                <div className="absolute inset-0 flex flex-col p-3 text-transparent">
+                <div className="absolute inset-0 flex flex-col p-3 text-transparent animate-pulse">
                     <h3 className="shrink-0 mb-2 text-xl animate-pulse rounded-sm bg-main">
                         로딩중
                     </h3>
