@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     const token = getAccessToken();
 
-    if (!token) return false;
+    if (!token) return Response.json("로그인 정보가 없습니다.");
 
     const id = verifyAccessToken(token);
     const stuff = await request.json();
