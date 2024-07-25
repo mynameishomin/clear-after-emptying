@@ -10,6 +10,10 @@ const TodayStuffList = () => {
     const [todayStuffList, setTodayStuffList] = useState<null | StuffProps[]>(
         null
     );
+    const [editStuffTarget, setEditStuffTarget] = useState<null | StuffProps>(
+        null
+    );
+
     const stuffModal = useModal();
 
     const getTodayStuffList = useMemo(() => {
@@ -34,6 +38,11 @@ const TodayStuffList = () => {
                 return null;
             }
         });
+    };
+
+    const openEditStuffModal = (stuff: StuffProps) => {
+        setEditStuffTarget(stuff);
+        stuffModal.onOpen();
     };
 
     const container = {
@@ -79,7 +88,9 @@ const TodayStuffList = () => {
                                     >
                                         <StuffCard
                                             stuff={stuff}
-                                            onClick={() => {}}
+                                            onClick={() => {
+                                                openEditStuffModal(stuff);
+                                            }}
                                         />
                                     </motion.li>
                                 );
@@ -108,6 +119,7 @@ const TodayStuffList = () => {
             </AnimatePresence>
 
             <StuffModal
+                stuffData={editStuffTarget}
                 isOpen={stuffModal.isOpen}
                 onClose={stuffModal.onClose}
                 stuffSubmitCallback={addTodayStuff}

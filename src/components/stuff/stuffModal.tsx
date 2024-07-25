@@ -7,11 +7,12 @@ import {
     useModal,
 } from "@/components/modal";
 import { StuffProps, StuffUrlsProps } from "@/type";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UnsplashModal from "@/components/unsplash/unsplashModal";
 import { customFetch } from "@/components/customFetch";
 
 interface StuffModalProps {
+    stuffData: StuffProps | null;
     isOpen: boolean;
     onClose: () => void;
     stuffSubmitCallback: (stuff: StuffProps) => void;
@@ -21,8 +22,11 @@ const StuffModal = ({
     isOpen,
     onClose,
     stuffSubmitCallback,
+    stuffData,
 }: StuffModalProps) => {
     const [stuff, setStuff] = useState<StuffProps>({} as StuffProps);
+    const [isEdit, setIsEdit] = useState(false);
+
     const unsplashModal = useModal();
 
     const onSelectImage = (urls: StuffUrlsProps) => {
@@ -47,7 +51,7 @@ const StuffModal = ({
     const onSubmitStuff = async (e: React.FormEvent) => {
         e.preventDefault();
         const response = await customFetch("/api/stuff", {
-            method: "POST",
+            method: isEdit ? "PUT" : "POST",
             headers: {
                 "Content-Type": "application/json",
             },
@@ -64,6 +68,14 @@ const StuffModal = ({
         }
     };
 
+    useEffect(() => {
+        if (stuffData) {
+            setStuff(stuffData);
+            setIsEdit(true);
+        } else {
+            setStuff({} as StuffProps);
+        }
+    }, [stuffData]);
     return (
         <>
             <form onSubmit={onSubmitStuff}>
@@ -164,7 +176,9 @@ const StuffModal = ({
                                 <button type="button" onClick={onClose}>
                                     닫기
                                 </button>
-                                <button type="submit">버리기</button>
+                                <button type="submit">
+                                    {isEdit ? "수정" : "버리기"}
+                                </button>
                             </div>
                         </ModalFooter>
                     </>

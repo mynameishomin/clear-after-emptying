@@ -71,15 +71,18 @@ export async function PUT(request: Request) {
     const updateData: StuffProps = await request.json();
 
     if (typeof id === "string") {
-        const stuff = await prisma.stuff.findUnique({ where: { id } });
-
+        const stuff = await prisma.stuff.findUnique({
+            where: { id: updateData.id },
+        });
+        console.log(updateData);
         if (!stuff)
             return Response.json("물건 정보가 없습니다.", { status: 422 });
 
         const updatedStuff = await prisma.stuff.update({
             where: { id: stuff.id },
             data: {
-                ...updateData,
+                summary: updateData.summary,
+                name: updateData.name,
                 urls: updateData.urls
                     ? JSON.parse(JSON.stringify(updateData.urls))
                     : undefined,
@@ -87,5 +90,20 @@ export async function PUT(request: Request) {
         });
 
         return Response.json(updatedStuff, { status: 200 });
+    }
+}
+
+export async function DELETE(request: Request) {
+    const token = getAccessToken();
+    if (!token)
+        return Response.json("로그인 정보가 없습니다.", { status: 422 });
+
+    const deleteStuff = await request.json();
+
+    const id = verifyAccessToken(token);
+    if (typeof id === "string") {
+        const stuff = prisma.stuff.delete({ where: { id: deleteStuff.id } });
+
+        return Response.json(stuff, { status: 200 });
     }
 }
