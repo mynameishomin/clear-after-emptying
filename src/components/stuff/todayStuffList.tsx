@@ -1,33 +1,38 @@
 import { useEffect, useMemo, useState } from "react";
 import { StuffProps } from "@/type";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { STUFF_API_URL } from "@/variables";
-import { PulseStuffCard, StuffCard } from "@/components/stuff/stuffCard";
+import {
+    LoadingStuffCardUl,
+    StuffCardLiVariants,
+} from "@/components/stuff/stuffCard";
 import { useModal } from "@/components/modal";
 import StuffModal from "@/components/stuff/stuffModal";
+import StuffCardList from "./stuffCardList";
 
 const TodayStuffList = () => {
-    const [todayStuffList, setTodayStuffList] = useState<null | StuffProps[]>(
-        null
-    );
+    const [loading, setLoading] = useState(true);
+    const [todayStuffList, setTodayStuffList] = useState<StuffProps[]>([]);
     const [editStuffTarget, setEditStuffTarget] = useState<null | StuffProps>(
         null
     );
 
     const stuffModal = useModal();
 
-    const getTodayStuffList = useMemo(() => {
+    const getTodayStuffList = async () => {
         const today = new Date();
         const startDate = today.toISOString().split("T")[0];
         today.setDate(today.getDate() + 1);
         const endDate = today.toISOString().split("T")[0];
-        return async () => {
-            const response = await fetch(
-                `${STUFF_API_URL}?startDate=${startDate}&endDate=${endDate}`
-            );
+        const response = await fetch(
+            `${STUFF_API_URL}?startDate=${startDate}&endDate=${endDate}`
+        );
+
+        if (response.ok) {
             setTodayStuffList(await response.json());
-        };
-    }, []);
+            setLoading(false);
+        }
+    };
 
     const addTodayStuff = (stuff: StuffProps) => {
         setTodayStuffList((prev) => {
@@ -35,7 +40,7 @@ const TodayStuffList = () => {
                 prev.push(stuff);
                 return [...prev];
             } else {
-                return null;
+                return [];
             }
         });
     };
@@ -45,63 +50,26 @@ const TodayStuffList = () => {
         stuffModal.onOpen();
     };
 
-    const container = {
-        visible: {
-            transition: {
-                delayChildren: 0.3,
-                staggerChildren: 0.2,
-            },
-        },
-    };
-
-    const item = {
-        hidden: { y: 40, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-        },
-    };
-
     useEffect(() => {
         getTodayStuffList();
-    }, [getTodayStuffList]);
+    }, []);
 
     return (
         <>
-            <AnimatePresence>
-                {todayStuffList ? (
-                    <motion.ul
-                        className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3 lg:grid-cols-4"
-                        key="today-stuff-list"
-                        initial="hidden"
-                        animate="visible"
-                        variants={container}
-                    >
-                        {todayStuffList.map(
-                            (stuff: StuffProps, index: number) => {
-                                return (
-                                    <motion.li
-                                        key={index}
-                                        variants={item}
-                                        layout
-                                        layoutId={stuff.id}
-                                    >
-                                        <StuffCard
-                                            stuff={stuff}
-                                            onClick={() => {
-                                                openEditStuffModal(stuff);
-                                            }}
-                                        />
-                                    </motion.li>
-                                );
-                            }
-                        )}
+            <section className="mb-20">
+                <h2 className="text-xl mb-4">
+                    지금까지, 이런 물건을 비웠어요.
+                </h2>
+                {loading ? (
+                    <LoadingStuffCardUl />
+                ) : (
+                    <StuffCardList stuffList={todayStuffList}>
                         <motion.li
                             className="relative pb-[100%]"
                             key="add-stuff-button"
                             layout
                             layoutId="add-stuff-button"
-                            variants={item}
+                            variants={StuffCardLiVariants}
                         >
                             <motion.button
                                 className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
@@ -110,13 +78,9 @@ const TodayStuffList = () => {
                                 <span className="text-2xl">+</span>
                             </motion.button>
                         </motion.li>
-                    </motion.ul>
-                ) : (
-                    <div className="w-1/2 sm:w-1/3 lg:w-1/4">
-                        <PulseStuffCard />
-                    </div>
+                    </StuffCardList>
                 )}
-            </AnimatePresence>
+            </section>
 
             <StuffModal
                 stuffData={editStuffTarget}

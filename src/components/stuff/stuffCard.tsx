@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { StuffProps } from "@/type";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
 
 interface StuffCardProps {
@@ -66,5 +66,67 @@ export const PulseStuffCard = () => {
                 </div>
             </div>
         </Card>
+    );
+};
+
+export const LoadingStuffCardUl = () => {
+    return (
+        <StuffCardUl>
+            <PulseStuffCard />
+        </StuffCardUl>
+    );
+};
+
+export const StuffCardLiVariants = {
+    hidden: { y: 40, opacity: 0 },
+    visible: {
+        y: 0,
+        opacity: 1,
+    },
+};
+
+export const StuffCardUlVariants = {
+    visible: {
+        transition: {
+            delayChildren: 0.3,
+            staggerChildren: 0.2,
+        },
+    },
+};
+
+export const StuffCardUl = ({
+    children,
+}: {
+    children?: React.ReactElement | null;
+}) => {
+    return (
+        <motion.ul
+            className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3 lg:grid-cols-4"
+            key="today-stuff-list"
+            initial="hidden"
+            animate="visible"
+            variants={StuffCardUlVariants}
+        >
+            <AnimatePresence>{children}</AnimatePresence>
+        </motion.ul>
+    );
+};
+
+export const StuffCardLi = ({ stuffList }: { stuffList: StuffProps[] }) => {
+    return stuffList.length === 0 ? (
+        <p>조회된 물품이 없습니다.</p>
+    ) : (
+        stuffList.map((stuff: StuffProps, index: number) => {
+            return (
+                <motion.li
+                    key={index}
+                    variants={StuffCardLiVariants}
+                    layout
+                    layoutId={stuff.id}
+                >
+                    <StuffCard stuff={stuff} onClick={() => {}} />
+                </motion.li>
+            );
+        })
     );
 };
