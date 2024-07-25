@@ -6,9 +6,12 @@ import { site } from "@/variables";
 import { useEffect } from "react";
 import { AuthContext } from "@/context/auth";
 import HistoryStuffList from "@/components/stuff/historyStuffList";
+import StuffModal from "@/components/stuff/stuffModal";
+import { useModal } from "@/components/modal";
 
 export default function Home() {
     const isLogin = useContext(AuthContext);
+    const stuffModal = useModal();
 
     useEffect(() => {
         const storageStuffHistory = localStorage.getItem("stuffHistory");
@@ -38,14 +41,14 @@ export default function Home() {
 
                     {isLogin && (
                         <div>
-                            <section className="relative mb-20 z-10">
-                                <h2 className="text-xl mb-4">
-                                    오늘, 이런 물건을 비웠어요.
-                                </h2>
-                                <TodayStuffList />
-                            </section>
-
+                            <TodayStuffList />
                             <HistoryStuffList />
+                            <StuffModal
+                                stuffData={null}
+                                isOpen={stuffModal.isOpen}
+                                onClose={stuffModal.onClose}
+                                stuffSubmitCallback={() => {}}
+                            />
                         </div>
                     )}
                 </>

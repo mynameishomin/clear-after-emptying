@@ -57,9 +57,7 @@ const TodayStuffList = () => {
     return (
         <>
             <section className="mb-20">
-                <h2 className="text-xl mb-4">
-                    지금까지, 이런 물건을 비웠어요.
-                </h2>
+                <h2 className="text-xl mb-4">오늘, 이런 물건을 비웠어요.</h2>
                 {loading ? (
                     <LoadingStuffCardUl />
                 ) : (

@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import UnsplashModal from "@/components/unsplash/unsplashModal";
 import { customFetch } from "@/components/customFetch";
 
-interface StuffModalProps {
+export interface StuffModalProps {
     stuffData: StuffProps | null;
     isOpen: boolean;
     onClose: () => void;
