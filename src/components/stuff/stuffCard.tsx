@@ -2,6 +2,8 @@ import Image from "next/image";
 import { StuffProps } from "@/type";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
+import { useContext } from "react";
+import { StuffModalContext } from "@/provider/stuffModal";
 
 interface StuffCardProps {
     stuff: StuffProps;
@@ -113,6 +115,12 @@ export const StuffCardUl = ({
 };
 
 export const StuffCardLi = ({ stuffList }: { stuffList: StuffProps[] }) => {
+    const { setStuff, onOpen } = useContext(StuffModalContext);
+    const openEditStuffModal = (stuff: StuffProps) => {
+        setStuff(stuff);
+        onOpen();
+    };
+
     return stuffList.length === 0 ? (
         <p>조회된 물품이 없습니다.</p>
     ) : (
@@ -124,7 +132,12 @@ export const StuffCardLi = ({ stuffList }: { stuffList: StuffProps[] }) => {
                     layout
                     layoutId={stuff.id}
                 >
-                    <StuffCard stuff={stuff} onClick={() => {}} />
+                    <StuffCard
+                        stuff={stuff}
+                        onClick={() => {
+                            openEditStuffModal(stuff);
+                        }}
+                    />
                 </motion.li>
             );
         })

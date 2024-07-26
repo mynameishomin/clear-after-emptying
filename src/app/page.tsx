@@ -43,12 +43,7 @@ export default function Home() {
                         <div>
                             <TodayStuffList />
                             <HistoryStuffList />
-                            <StuffModal
-                                stuffData={null}
-                                isOpen={stuffModal.isOpen}
-                                onClose={stuffModal.onClose}
-                                stuffSubmitCallback={() => {}}
-                            />
+                            <StuffModal />
                         </div>
                     )}
                 </>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { StuffProps } from "@/type";
 import { motion } from "framer-motion";
 import { STUFF_API_URL } from "@/variables";
@@ -6,18 +6,15 @@ import {
     LoadingStuffCardUl,
     StuffCardLiVariants,
 } from "@/components/stuff/stuffCard";
-import { useModal } from "@/components/modal";
-import StuffModal from "@/components/stuff/stuffModal";
 import StuffCardList from "./stuffCardList";
+import { StuffModalContext } from "@/provider/stuffModal";
 
 const TodayStuffList = () => {
     const [loading, setLoading] = useState(true);
     const [todayStuffList, setTodayStuffList] = useState<StuffProps[]>([]);
-    const [editStuffTarget, setEditStuffTarget] = useState<null | StuffProps>(
-        null
-    );
 
-    const stuffModal = useModal();
+    const { onOpen, setStuff, stuffSubmitCallback } =
+        useContext(StuffModalContext);
 
     const getTodayStuffList = async () => {
         const today = new Date();
@@ -45,9 +42,17 @@ const TodayStuffList = () => {
         });
     };
 
+    const openAddStuffModal = () => {
+        setStuff({
+            name: "",
+            summary: "",
+        } as StuffProps);
+        onOpen();
+    };
+
     const openEditStuffModal = (stuff: StuffProps) => {
-        setEditStuffTarget(stuff);
-        stuffModal.onOpen();
+        setStuff(stuff);
+        onOpen();
     };
 
     useEffect(() => {
@@ -71,7 +76,7 @@ const TodayStuffList = () => {
                         >
                             <motion.button
                                 className="absolute inset-0 flex justify-center items-center w-full h-full border-2 border-point rounded-lg hover:bg-main transition-all"
-                                onClick={stuffModal.onOpen}
+                                onClick={openAddStuffModal}
                             >
                                 <span className="text-2xl">+</span>
                             </motion.button>
@@ -80,12 +85,12 @@ const TodayStuffList = () => {
                 )}
             </section>
 
-            <StuffModal
+            {/* <StuffModal
                 stuffData={editStuffTarget}
                 isOpen={stuffModal.isOpen}
                 onClose={stuffModal.onClose}
                 stuffSubmitCallback={addTodayStuff}
-            />
+            /> */}
         </>
     );
 };

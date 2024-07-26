@@ -1,34 +1,34 @@
 "use client";
-import { ChildrenProps } from "@/type";
-import { StuffModalContext } from "@/context/stuffModal";
-import { StuffModalProps } from "@/components/stuff/stuffModal";
-interface StuffModalProviderProps extends ChildrenProps, StuffModalProps {}
+import { ChildrenProps, StuffProps } from "@/type";
+import { useModal } from "@/components/modal";
+import { useState } from "react";
+import { StuffModalProps } from "./../components/stuff/stuffModal";
+import { createContext } from "react";
 
-export const StuffModalProvider = ({
-    children,
-    stuffData,
-    isOpen,
-    onClose,
-    stuffSubmitCallback,
-}: StuffModalProviderProps) => {
+interface StuffModalContextProps extends StuffModalProps {
+    setStuff: React.Dispatch<React.SetStateAction<StuffProps>>;
+}
+
+export const StuffModalContext = createContext<StuffModalContextProps>(
+    {} as StuffModalContextProps
+);
+
+export const StuffModalProvider = ({ children }: ChildrenProps) => {
+    const { isOpen, onClose, onOpen } = useModal();
+    const [stuff, setStuff] = useState<StuffProps>({} as StuffProps);
+
     return (
-        <StuffModalContext.Provider value={{} as StuffModalProps}>
+        <StuffModalContext.Provider
+            value={{
+                stuff,
+                isOpen,
+                onClose,
+                setStuff,
+                onOpen,
+                stuffSubmitCallback: () => {},
+            }}
+        >
             {children}
         </StuffModalContext.Provider>
-    );
-};
-
-import { createContext, useState } from "react";
-
-// 컨텍스트 생성
-const ExampleContext = createContext("");
-
-const ExampleProvider = ({ children }) => {
-    const [value, setValue] = useState("Hello, World!");
-
-    return (
-        <ExampleContext.Provider value={{ value, setValue }}>
-            {children}
-        </ExampleContext.Provider>
     );
 };
