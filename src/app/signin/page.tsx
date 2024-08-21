@@ -9,7 +9,7 @@ export default function Signup() {
         <Container>
             <div className="pt-8 flex justify-center">
                 <div className="flex flex-col items-center max-w-60 w-full">
-                    <h2 className="mb-8 text-2xl">회원가입</h2>
+                    <h2 className="mb-8 text-2xl">로그인</h2>
 
                     <ul className="flex flex-col gap-2 w-full">
                         <li>
@@ -30,7 +30,7 @@ export default function Signup() {
                                     width={32}
                                     height={32}
                                 />
-                                <span>네이버 회원가입</span>
+                                <span>네이버 로그인</span>
                             </button>
                         </li>
                         <li>
@@ -45,19 +45,10 @@ export default function Signup() {
                                     width={32}
                                     height={32}
                                 />
-                                <span>카카오 회원가입 가짜</span>
+                                <span>카카오 로그인 가짜</span>
                             </button>
                         </li>
                     </ul>
-
-                    <div className="h-0.5 w-full my-8 bg-point"></div>
-
-                    <p>
-                        이미 가입하셨나요?{" "}
-                        <Link className="border-b-2 border-point" href="signin">
-                            로그인
-                        </Link>
-                    </p>
                 </div>
             </div>
         </Container>

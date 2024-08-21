@@ -1,32 +1,18 @@
 "use client";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { SIGNOUT_API_URL, site } from "@/variables";
 import Link from "next/link";
-import AuthModal from "@/components/auth/authModal";
 import { useModal } from "@/components/modal";
 import { useContext } from "react";
 import { AuthContext } from "@/context/auth";
 import { useRouter } from "next/navigation";
 import Container from "./container";
+import { signOut, useSession } from "next-auth/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons/faBars";
 
 export const Header = () => {
-    const isLogin = useContext(AuthContext);
-    const { isOpen, onOpen, onClose } = useModal();
     const router = useRouter();
-
-    const onLogout = async () => {
-        const response = await fetch(SIGNOUT_API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (response.ok) {
-            router.refresh();
-        }
-    };
+    const { data: session } = useSession();
 
     return (
         <header className="fixed inset-0 bottom-auto mt-4 px-2 overflow-hidden z-50">
@@ -39,38 +25,31 @@ export const Header = () => {
                             </div>
 
                             {/* <button className="sm:hidden">
-                        <FontAwesomeIcon
-                            className="block w-5 h-5 p-4"
-                            icon={faBars}
-                        />
-                    </button> */}
+                                <FontAwesomeIcon
+                                    className="block w-5 h-5 p-4"
+                                    icon={faBars}
+                                />
+                            </button> */}
                             <nav className="sm:block">
                                 <ul className="flex space-x-2">
-                                    <li className="p-2">
-                                        <Link href="/signup">가입</Link>
-                                    </li>
+                                    {session ? (
+                                        <li className="p-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => signOut()}
+                                            >
+                                                로그아웃
+                                            </button>
+                                        </li>
+                                    ) : (
+                                        <li className="p-2">
+                                            <Link href="/signin">로그인</Link>
+                                        </li>
+                                    )}
                                 </ul>
                             </nav>
                         </div>
                     </div>
-                    {!isLogin ? (
-                        <button
-                            className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
-                            onClick={onOpen}
-                            type="button"
-                        >
-                            로그인/회원가입
-                        </button>
-                    ) : (
-                        <button
-                            className="fixed bottom-5 right-5 py-1 px-2 rounded-lg border-2 border-point bg-sub"
-                            onClick={onLogout}
-                            type="button"
-                        >
-                            로그아웃
-                        </button>
-                    )}
-                    <AuthModal isOpen={isOpen} onClose={onClose} />
                 </>
             </Container>
         </header>

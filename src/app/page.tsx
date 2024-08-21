@@ -4,53 +4,24 @@ import Container from "@/components/layout/container";
 import TodayStuffList from "@/components/stuff/todayStuffList";
 import { site } from "@/variables";
 import { useEffect } from "react";
-import { AuthContext } from "@/context/auth";
 import HistoryStuffList from "@/components/stuff/historyStuffList";
 import StuffModal from "@/components/stuff/stuffModal";
 import { useModal } from "@/components/modal";
 
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 
 export default function Home() {
-    const isLogin = useContext(AuthContext);
     const stuffModal = useModal();
 
-    const { data: session } = useSession();
-    console.log(session);
+    const data = useSession();
+    console.log(data);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log("dasds");
-        await signIn("naver", { redirect: true, callbackUrl: "/" });
-    };
+    fetch("/api/stuff");
 
-    useEffect(() => {
-        const storageStuffHistory = localStorage.getItem("stuffHistory");
-        if (!storageStuffHistory) {
-            localStorage.setItem("stuffHistory", JSON.stringify([]));
-        }
-    }, []);
     return (
         <div className="flex flex-col md:justify-center w-full">
             <Container>
                 <>
-                    {/* <form action={"/"} onSubmit={handleSubmit}> */}
-                    <button
-                        type="button"
-                        onClick={() =>
-                            signIn("naver", {
-                                redirect: true,
-                                callbackUrl: "/",
-                            })
-                        }
-                    >
-                        테스트
-                    </button>
-                    <button type="button" onClick={() => signOut()}>
-                        로그아웃 테스트
-                    </button>
-                    {/* </form> */}
-
                     <section className="mt-20 lg:mt-22 mb-12">
                         <h1 className="mb-1 text-4xl">
                             {site.title}:
@@ -67,13 +38,13 @@ export default function Home() {
                         </p>
                     </section>
 
-                    {isLogin && (
+                    {/* {session && (
                         <div>
                             <TodayStuffList />
                             <HistoryStuffList />
                             <StuffModal />
                         </div>
-                    )}
+                    )} */}
                 </>
             </Container>
         </div>
