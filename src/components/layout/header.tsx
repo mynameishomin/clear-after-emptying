@@ -44,11 +44,11 @@ export const Header = () => {
                             icon={faBars}
                         />
                     </button> */}
-                            <nav className="hidden sm:block">
+                            <nav className="sm:block">
                                 <ul className="flex space-x-2">
-                                    {/* <li className="p-2">
-                                        <Link href="/history">비운 물건</Link>
-                                    </li> */}
+                                    <li className="p-2">
+                                        <Link href="/signup">가입</Link>
+                                    </li>
                                 </ul>
                             </nav>
                         </div>

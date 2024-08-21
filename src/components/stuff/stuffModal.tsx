@@ -162,6 +162,14 @@ const StuffModal = () => {
                             </ModalBody>
                             <ModalFooter>
                                 <div className="flex justify-end gap-3">
+                                    {stuff.id ? (
+                                        <button
+                                            className="mr-auto"
+                                            type="button"
+                                        >
+                                            삭제
+                                        </button>
+                                    ) : null}
                                     <button type="button" onClick={onClose}>
                                         닫기
                                     </button>

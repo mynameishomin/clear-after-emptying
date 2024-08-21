@@ -5,18 +5,28 @@ import { useState } from "react";
 import { createContext } from "react";
 
 interface StuffContextProps {
-    today: StuffProps[];
-    history: StuffProps[];
+    todayStuff: StuffProps[];
+    setTodayStuff: React.Dispatch<React.SetStateAction<StuffProps[]>>;
+    historyStuff: StuffProps[];
+    setHistoryStuff: React.Dispatch<React.SetStateAction<StuffProps[]>>;
 }
 
 export const StuffContext = createContext<StuffContextProps>({
-    today: [],
-    history: [],
+    todayStuff: [],
+    setTodayStuff: () => {},
+    historyStuff: [],
+    setHistoryStuff: () => {},
 });
 
 export const StuffProvider = ({ children }: ChildrenProps) => {
-    const { isOpen, onClose, onOpen } = useModal();
-    const [stuff, setStuff] = useState<StuffProps>({} as StuffProps);
+    const [todayStuff, setTodayStuff] = useState<StuffProps[]>([]);
+    const [historyStuff, setHistoryStuff] = useState<StuffProps[]>([]);
 
-    return <StuffContext.Provider value={{}}>{children}</StuffContext.Provider>;
+    return (
+        <StuffContext.Provider
+            value={{ todayStuff, setTodayStuff, historyStuff, setHistoryStuff }}
+        >
+            {children}
+        </StuffContext.Provider>
+    );
 };

@@ -122,7 +122,7 @@ export const StuffCardLi = ({ stuffList }: { stuffList: StuffProps[] }) => {
     };
 
     return stuffList.length === 0 ? (
-        <p>조회된 물품이 없습니다.</p>
+        <p>조회된 물건이 없습니다.</p>
     ) : (
         stuffList.map((stuff: StuffProps, index: number) => {
             return (

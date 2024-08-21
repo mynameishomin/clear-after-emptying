@@ -12,6 +12,7 @@ const config: Config = {
                 sub: "#F1EDE6",
                 main: "#CBAD8D",
                 point: "#3A2D28",
+                naver: "#5ac467",
             },
             backgroundImage: {
                 "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
