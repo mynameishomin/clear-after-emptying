@@ -7,16 +7,20 @@ import { useEffect } from "react";
 import HistoryStuffList from "@/components/stuff/historyStuffList";
 import StuffModal from "@/components/stuff/stuffModal";
 import { useModal } from "@/components/modal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 import { useSession, signIn } from "next-auth/react";
+import Button from "@/components/button";
+import Link from "next/link";
 
 export default function Home() {
     const stuffModal = useModal();
 
     const data = useSession();
-    console.log(data);
+    // console.log(data);
 
-    fetch("/api/stuff");
+    // fetch("/api/stuff");
 
     return (
         <div className="flex flex-col md:justify-center w-full">
@@ -36,6 +40,42 @@ export default function Home() {
                             평화를 찾으며, 물질적인 소유가 아닌 경험과 관계를
                             소중히 여기는 삶을 살아가봅시다.
                         </p>
+                    </section>
+
+                    <section className="flex justify-center items-center gap-8 mb-20">
+                        <div>
+                            <div className="w-[600px] h-72 bg-gray-300 rounded-md"></div>
+                        </div>
+                        <div className="flex flex-col items-start">
+                            <h2 className="mb-1 text-5xl">비우고 기록하세요</h2>
+                            <p className="mb-6">
+                                비움 뒤 맑음은 내가 그동안 얼마나 많은 물건을
+                                비웠는지, 어떤 종류의 물건을, 어떻게 비웠는지 한
+                                눈에 볼 수 있게 정리해줍니다.
+                            </p>
+                            <Link href="/stuff">
+                                비우러 가기
+                                <FontAwesomeIcon icon={faArrowRight} />
+                            </Link>
+                        </div>
+                    </section>
+                    <section className="flex justify-center items-center gap-8 mb-20">
+                        <div className="flex flex-col items-end text-right">
+                            <h2 className="mb-1 text-5xl">비우고 기록하세요</h2>
+                            <p className="mb-6">
+                                비움 뒤 맑음은 내가 그동안 얼마나 많은 물건을
+                                비웠는지, 어떤 종류의 물건을, 어떻게 비웠는지 한
+                                눈에 볼 수 있게 정리해줍니다.
+                            </p>
+
+                            <Link href="/stuff">
+                                비우러 가기
+                                <FontAwesomeIcon icon={faArrowRight} />
+                            </Link>
+                        </div>
+                        <div>
+                            <div className="w-[600px] h-72 bg-gray-300 rounded-md"></div>
+                        </div>
                     </section>
 
                     {/* {session && (

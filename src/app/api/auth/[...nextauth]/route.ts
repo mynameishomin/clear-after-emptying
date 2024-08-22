@@ -1,6 +1,17 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import NaverProvider from "next-auth/providers/naver";
 
+declare module "next-auth" {
+    interface Session {
+        user: {
+            id: string;
+            name?: string | null;
+            email?: string | null;
+            image?: string | null;
+        };
+    }
+}
+
 export const authOptions: AuthOptions = {
     providers: [
         NaverProvider({
@@ -17,7 +28,7 @@ export const authOptions: AuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
         async session({ session, token }) {
-            session.user = token;
+            session.user.id = token.sub as string;
             return session;
         },
     },

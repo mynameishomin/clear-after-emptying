@@ -14,7 +14,7 @@ export const StuffCard = ({ stuff, onClick }: StuffCardProps) => {
     return (
         <Card>
             <motion.button
-                className="backface-hidden relative flex md:flex-col gap-4 w-full h-full pb-[100%] text-left"
+                className="relative flex md:flex-col gap-4 w-full h-full pb-[100%] text-left"
                 type="button"
                 onClick={onClick}
             >

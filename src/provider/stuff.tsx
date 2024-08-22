@@ -1,31 +1,33 @@
 "use client";
 import { ChildrenProps, StuffProps } from "@/type";
-import { useModal } from "@/components/modal";
-import { useState } from "react";
+import { STUFF_API_URL } from "@/variables";
+import { useEffect, useState } from "react";
 import { createContext } from "react";
 
 interface StuffContextProps {
-    todayStuff: StuffProps[];
-    setTodayStuff: React.Dispatch<React.SetStateAction<StuffProps[]>>;
-    historyStuff: StuffProps[];
-    setHistoryStuff: React.Dispatch<React.SetStateAction<StuffProps[]>>;
+    stuffList: StuffProps[] | null;
+    setStuffList: React.Dispatch<React.SetStateAction<StuffProps[] | null>>;
 }
 
 export const StuffContext = createContext<StuffContextProps>({
-    todayStuff: [],
-    setTodayStuff: () => {},
-    historyStuff: [],
-    setHistoryStuff: () => {},
+    stuffList: null,
+    setStuffList: () => {},
 });
 
 export const StuffProvider = ({ children }: ChildrenProps) => {
-    const [todayStuff, setTodayStuff] = useState<StuffProps[]>([]);
-    const [historyStuff, setHistoryStuff] = useState<StuffProps[]>([]);
+    const [stuffList, setStuffList] = useState<StuffProps[] | null>(null);
+
+    useEffect(() => {
+        const getStuffList = async () => {
+            const response = await fetch(STUFF_API_URL);
+            setStuffList(await response.json());
+        };
+
+        getStuffList();
+    }, []);
 
     return (
-        <StuffContext.Provider
-            value={{ todayStuff, setTodayStuff, historyStuff, setHistoryStuff }}
-        >
+        <StuffContext.Provider value={{ stuffList, setStuffList }}>
             {children}
         </StuffContext.Provider>
     );

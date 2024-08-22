@@ -1,36 +1,25 @@
-import { useEffect, useMemo, useState } from "react";
-import { StuffProps } from "@/type";
-import { STUFF_API_URL } from "@/variables";
+import { useContext } from "react";
 import StuffCardList from "@/components/stuff/stuffCardList";
 import { LoadingStuffCardUl } from "./stuffCard";
+import { StuffContext } from "@/provider/stuff";
 
 const HistoryStuffList = () => {
-    const [loading, setLoading] = useState(true);
-    const [historyStuffList, setHistoryStuffList] = useState<StuffProps[]>([]);
+    const { stuffList } = useContext(StuffContext);
+    console.log(stuffList);
+    const today = new Date().toISOString().split("T")[0];
 
-    const getHistoryStuffList = async () => {
-        const today = new Date();
-        today.setDate(today.getDate() - 1);
-        const endDate = today.toISOString().split("T")[0];
-        const response = await fetch(`${STUFF_API_URL}?endDate=${endDate}`);
-
-        if (response.ok) {
-            setHistoryStuffList(await response.json());
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        getHistoryStuffList();
-    }, []);
-
+    // createdAt이 오늘 날짜가 아닌 항목만 필터링
+    const stuff = stuffList?.filter((item) => {
+        const itemDate = item.createdAt?.split("T")[0];
+        return itemDate !== today;
+    });
     return (
         <section className="mb-20">
             <h2 className="text-xl mb-4">지금까지, 이런 물건을 비웠어요.</h2>
-            {loading ? (
-                <LoadingStuffCardUl />
+            {stuff ? (
+                <StuffCardList stuffList={stuff} />
             ) : (
-                <StuffCardList stuffList={historyStuffList} />
+                <LoadingStuffCardUl />
             )}
         </section>
     );

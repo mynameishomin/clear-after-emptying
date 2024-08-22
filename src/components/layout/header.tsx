@@ -9,10 +9,21 @@ import Container from "./container";
 import { signOut, useSession } from "next-auth/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons/faBars";
+import Button from "../button";
+import { StuffModalContext } from "@/provider/stuffModal";
+import { StuffProps } from "@/type";
+import StuffModal from "../stuff/stuffModal";
 
 export const Header = () => {
     const router = useRouter();
     const { data: session } = useSession();
+
+    const { setStuff, onOpen } = useContext(StuffModalContext);
+    const openAddStuff = () => {
+        console.log("????");
+        setStuff({} as StuffProps);
+        onOpen();
+    };
 
     return (
         <header className="fixed inset-0 bottom-auto mt-4 px-2 overflow-hidden z-50">
@@ -52,6 +63,19 @@ export const Header = () => {
                     </div>
                 </>
             </Container>
+
+            {session && (
+                <div className="fixed bottom-6 right-6">
+                    <Button
+                        onClick={() => {
+                            openAddStuff();
+                        }}
+                    >
+                        비우기
+                    </Button>
+                    <StuffModal />
+                </div>
+            )}
         </header>
     );
 };

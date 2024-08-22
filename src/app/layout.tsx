@@ -7,6 +7,7 @@ import { site } from "@/variables";
 import { FetchDataEventListenerComponent } from "@/components/customFetch";
 import { StuffModalProvider } from "@/provider/stuffModal";
 import { SessionProvider } from "@/provider/session";
+import StuffModal from "@/components/stuff/stuffModal";
 
 const doHyeon = Do_Hyeon({ subsets: ["latin"], weight: "400" });
 

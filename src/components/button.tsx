@@ -1,15 +1,18 @@
 interface ButtonProps {
-    text: string;
+    children: React.ReactNode;
     onClick: () => void;
 }
 
-export default function Button({ text, onClick }: ButtonProps) {
+export const BUTTON_CLASSNAME =
+    "flex items-center gap-2 py-1 px-2 rounded-lg border-2 border-point bg-sub transition hover:text-white hover:bg-point";
+
+export default function Button({ onClick, children }: ButtonProps) {
     return (
         <button
-            className="w-full h-8 px-3 rounded-sm text-sm bg-gray-700 text-white hover:bg-gray-600 transition-all"
+            className="flex items-center gap-2 py-1 px-2 rounded-lg border-2 border-point bg-sub transition hover:text-white hover:bg-point"
             onClick={onClick}
         >
-            {text}
+            {children}
         </button>
     );
 }

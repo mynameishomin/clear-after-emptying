@@ -43,6 +43,8 @@ const StuffModal = () => {
         });
     };
 
+    const addStuff = async () => {};
+
     const onSubmitStuff = async (e: React.FormEvent) => {
         e.preventDefault();
         const response = await customFetch("/api/stuff", {
@@ -60,6 +62,15 @@ const StuffModal = () => {
             // stuffSubmitCallback(addedStuff);
             onClose();
         }
+    };
+
+    const deleteStuff = async () => {
+        const response = await customFetch("/api/stuff", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(stuff),
+        });
+        onClose();
     };
 
     return (
@@ -117,7 +128,7 @@ const StuffModal = () => {
                                                                 cy="12"
                                                                 r="10"
                                                                 stroke="currentColor"
-                                                                stroke-width="4"
+                                                                strokeWidth="4"
                                                             ></circle>
                                                             <path
                                                                 className="opacity-75"
@@ -166,6 +177,7 @@ const StuffModal = () => {
                                         <button
                                             className="mr-auto"
                                             type="button"
+                                            onClick={deleteStuff}
                                         >
                                             삭제
                                         </button>

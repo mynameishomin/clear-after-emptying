@@ -2,57 +2,48 @@ import { PrismaClient } from "@prisma/client";
 import { StuffProps } from "@/type";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
+import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
-    const session = await getServerSession(authOptions);
-    console.log(session);
+    try {
+        const session = await getServerSession(authOptions);
 
-    // const token = getAccessToken();
-
-    // 로그인 토큰 확인
-    // if (!token) {
-    //     return Response.json("로그인 정보가 없습니다.", { status: 422 });
-    // }
-
-    // 토큰이 유효한 지 확인
-    // const id = verifyAccessToken(token);
-
-    const { searchParams } = new URL(request.url);
-
-    if (typeof id === "string") {
-        const startDate = searchParams.get("startDate");
-        const endDate = searchParams.get("endDate");
-        const whereClause: any = { userId: id };
-
-        if (startDate || endDate) {
-            whereClause.createdAt = {
-                ...(startDate && { gte: new Date(startDate) }),
-                ...(endDate && { lte: new Date(endDate) }),
-            };
+        if (!session || !session.user?.id) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
         }
 
-        const stuff = await prisma.stuff.findMany({
-            where: whereClause,
-        });
-        return Response.json(stuff, {
-            status: 200,
-        });
-    } else {
-        return Response.json("로그인 필요", { status: 400 });
+        const { searchParams } = new URL(request.url);
+        const startDate = searchParams.get("startDate");
+        const endDate = searchParams.get("endDate");
+
+        const where: Record<string, any> = { userId: session.user.id };
+        where.createdAt = {
+            ...(startDate && { gte: new Date(startDate) }),
+            ...(endDate && { lte: new Date(endDate) }),
+        };
+
+        const stuff = await prisma.stuff.findMany({ where });
+
+        return NextResponse.json(stuff, { status: 200 });
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { error: "예상하지 못한 오류 발생" },
+            { status: 500 }
+        );
     }
 }
 
 export async function POST(request: Request) {
-    const token = getAccessToken();
-
-    if (!token) return Response.json("로그인 정보가 없습니다.");
-
-    const id = verifyAccessToken(token);
+    const session = await getServerSession(authOptions);
     const stuff = await request.json();
 
     if (!stuff.name || !stuff.summary || !stuff.urls) {
-        return Response.json(
+        return NextResponse.json(
             {
                 action: {
                     type: "alert",
@@ -65,9 +56,18 @@ export async function POST(request: Request) {
     }
 
     const data = await prisma.stuff.create({
-        data: { userId: id, ...stuff, createdAt: new Date() },
+        data: { userId: session?.user.id, ...stuff, createdAt: new Date() },
     });
-    return Response.json(data);
+    return NextResponse.json(
+        {
+            data,
+            action: {
+                type: "toast",
+                text: "삭제되었습니다.",
+            },
+        },
+        { status: 200 }
+    );
 }
 
 export async function PUT(request: Request) {
@@ -102,16 +102,28 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-    const token = getAccessToken();
-    if (!token)
-        return Response.json("로그인 정보가 없습니다.", { status: 422 });
+    try {
+        const session = await getServerSession(authOptions);
+        const stuff = await request.json();
 
-    const deleteStuff = await request.json();
+        await prisma.stuff.delete({
+            where: { id: stuff.id, userId: session?.user.id },
+        });
 
-    const id = verifyAccessToken(token);
-    if (typeof id === "string") {
-        const stuff = prisma.stuff.delete({ where: { id: deleteStuff.id } });
-
-        return Response.json(stuff, { status: 200 });
+        return Response.json(
+            {
+                action: {
+                    type: "toast",
+                    text: "삭제되었습니다.",
+                },
+            },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { error: "예상하지 못한 오류 발생" },
+            { status: 500 }
+        );
     }
 }
