@@ -6,7 +6,6 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/modal";
 import { useEffect, useState } from "react";
 import { UNSPLASH_API_PATH } from "@/variables";
-import { StuffUrlsProps } from "@/type";
 
 interface UnsplashPhotoProps {
     id: string;
@@ -20,7 +19,7 @@ interface UnsplashPhotoProps {
 interface UnsplashModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSelect: (urls: StuffUrlsProps) => void;
+    onSelect: (url: string) => void;
 }
 
 const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
@@ -106,7 +105,9 @@ const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
                                         <button
                                             className="absolute bottom-1 right-1 py-px px-2 text-sm rounded-md border-2 border-point bg-sub"
                                             type="button"
-                                            onClick={() => onSelect(photo.urls)}
+                                            onClick={() =>
+                                                onSelect(photo.urls.regular)
+                                            }
                                         >
                                             선택
                                         </button>

@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
+    // await prisma.stuff.deleteMany();
     try {
         const session = await getServerSession(authOptions);
 
@@ -26,7 +27,12 @@ export async function GET(request: Request) {
             ...(endDate && { lte: new Date(endDate) }),
         };
 
-        const stuff = await prisma.stuff.findMany({ where });
+        const stuff = await prisma.stuff.findMany({
+            where,
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
 
         return NextResponse.json(stuff, { status: 200 });
     } catch (error) {
@@ -42,7 +48,7 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
     const stuff = await request.json();
 
-    if (!stuff.name || !stuff.summary || !stuff.urls) {
+    if (!stuff.name || !stuff.summary || !stuff.url) {
         return NextResponse.json(
             {
                 action: {
@@ -56,14 +62,20 @@ export async function POST(request: Request) {
     }
 
     const data = await prisma.stuff.create({
-        data: { userId: session?.user.id, ...stuff, createdAt: new Date() },
+        data: {
+            userId: session?.user.id,
+            name: stuff.name,
+            summary: stuff.summary,
+            url: stuff.url,
+            createdAt: new Date(),
+        },
     });
     return NextResponse.json(
         {
             data,
             action: {
                 type: "toast",
-                text: "삭제되었습니다.",
+                text: "물건을 버렸습니다.",
             },
         },
         { status: 200 }
@@ -71,34 +83,37 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-    const token = getAccessToken();
-    if (!token)
-        return Response.json("로그인 정보가 없습니다.", { status: 422 });
+    const session = await getServerSession(authOptions);
 
-    const id = verifyAccessToken(token);
     const updateData: StuffProps = await request.json();
 
-    if (typeof id === "string") {
-        const stuff = await prisma.stuff.findUnique({
-            where: { id: updateData.id },
-        });
-        console.log(updateData);
-        if (!stuff)
-            return Response.json("물건 정보가 없습니다.", { status: 422 });
+    const stuff = await prisma.stuff.findUnique({
+        where: { id: updateData.id, userId: session?.user.id },
+    });
 
-        const updatedStuff = await prisma.stuff.update({
-            where: { id: stuff.id },
-            data: {
-                summary: updateData.summary,
-                name: updateData.name,
-                urls: updateData.urls
-                    ? JSON.parse(JSON.stringify(updateData.urls))
-                    : undefined,
+    if (!stuff) return Response.json("물건 정보가 없습니다.", { status: 422 });
+
+    const data = await prisma.stuff.update({
+        where: { id: stuff.id },
+        data: {
+            summary: updateData.summary,
+            name: updateData.name,
+            urls: updateData.urls
+                ? JSON.parse(JSON.stringify(updateData.urls))
+                : undefined,
+        },
+    });
+
+    return Response.json(
+        {
+            data,
+            action: {
+                type: "toast",
+                text: "물건을 수정했습니다.",
             },
-        });
-
-        return Response.json(updatedStuff, { status: 200 });
-    }
+        },
+        { status: 200 }
+    );
 }
 
 export async function DELETE(request: Request) {

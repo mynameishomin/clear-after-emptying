@@ -3,13 +3,8 @@ export interface StuffProps {
     id?: string;
     name: string;
     summary: string;
-    urls: StuffUrlsProps;
+    url: string;
     createdAt?: string;
-}
-
-export interface StuffUrlsProps {
-    regular: string;
-    thumb: string;
 }
 
 export interface ChildrenProps {

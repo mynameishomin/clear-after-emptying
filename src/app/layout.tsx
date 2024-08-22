@@ -8,6 +8,7 @@ import { FetchDataEventListenerComponent } from "@/components/customFetch";
 import { StuffModalProvider } from "@/provider/stuffModal";
 import { SessionProvider } from "@/provider/session";
 import StuffModal from "@/components/stuff/stuffModal";
+import { StuffProvider } from "@/provider/stuff";
 
 const doHyeon = Do_Hyeon({ subsets: ["latin"], weight: "400" });
 
@@ -26,12 +27,14 @@ export default function RootLayout({
             <body className={doHyeon.className}>
                 <FetchDataEventListenerComponent />
                 <SessionProvider>
-                    <StuffModalProvider>
-                        <div className="w-screen min-h-screen overflow-hidden text-point break-keep">
-                            <Header />
-                            <div className="mt-20">{children}</div>
-                        </div>
-                    </StuffModalProvider>
+                    <StuffProvider>
+                        <StuffModalProvider>
+                            <div className="w-screen min-h-screen overflow-hidden text-point break-keep">
+                                <Header />
+                                <div className="mt-20">{children}</div>
+                            </div>
+                        </StuffModalProvider>
+                    </StuffProvider>
                 </SessionProvider>
             </body>
         </html>

@@ -1,4 +1,6 @@
+"use client";
 import Image from "next/image";
+import { useForm, SubmitHandler } from "react-hook-form";
 import {
     Modal,
     ModalHeader,
@@ -6,11 +8,23 @@ import {
     ModalFooter,
     useModal,
 } from "@/components/modal";
-import { StuffProps, StuffUrlsProps } from "@/type";
-import { useContext, useState } from "react";
+import { StuffProps } from "@/type";
+import { useContext, useEffect } from "react";
 import UnsplashModal from "@/components/unsplash/unsplashModal";
 import { customFetch } from "@/components/customFetch";
 import { StuffModalContext } from "@/provider/stuffModal";
+import { STUFF_API_URL } from "@/variables";
+import { StuffContext } from "@/provider/stuff";
+
+export enum HTTPMethod {
+    GET = "GET",
+    POST = "POST",
+    PUT = "PUT",
+    DELETE = "DELETE",
+    PATCH = "PATCH",
+    OPTIONS = "OPTIONS",
+    HEAD = "HEAD",
+}
 
 export interface StuffModalProps {
     stuff: StuffProps | null;
@@ -21,62 +35,82 @@ export interface StuffModalProps {
 }
 
 const StuffModal = () => {
-    const { stuff, setStuff, isOpen, onClose } = useContext(StuffModalContext);
     const unsplashModal = useModal();
+    const { stuffList, setStuffList } = useContext(StuffContext);
+    const { stuff, isOpen, onClose } = useContext(StuffModalContext);
+    const { register, handleSubmit, watch, setValue, reset } =
+        useForm<StuffProps>();
 
-    const onSelectImage = (urls: StuffUrlsProps) => {
-        setStuff((prev) => {
-            prev.urls = urls;
-            return { ...prev };
-        });
+    const onSubmit = (httpMethod: HTTPMethod) => {
+        const onSubmitWithHttpMethod: SubmitHandler<StuffProps> = async (
+            formData
+        ) => {
+            const response = await customFetch(STUFF_API_URL, {
+                method: httpMethod,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+            if (response.ok) {
+                const { data } = await response.json();
 
+                setStuffList((prev) => {
+                    const prevList = prev ?? [];
+
+                    switch (httpMethod) {
+                        case HTTPMethod.POST:
+                            return [data, ...prevList];
+                            break;
+                        case HTTPMethod.DELETE:
+                            return prevList.filter(
+                                (stuff) => stuff.id !== formData.id
+                            );
+                            break;
+                        case HTTPMethod.PUT:
+                            const index = prevList.findIndex(
+                                (stuff) => stuff.id === formData.id
+                            );
+                            prevList[index] = data;
+                            return [...prevList];
+                            break;
+                        default:
+                            return prevList;
+                    }
+                });
+
+                reset();
+                onClose();
+            }
+        };
+        return onSubmitWithHttpMethod;
+    };
+
+    const onSelectImage = (url: string) => {
+        setValue("url", url);
         unsplashModal.onClose();
     };
 
-    const onChangeStuff = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { value, name } = e.target;
-        setStuff((prev) => {
-            prev[name] = value;
-            return { ...prev };
-        });
-    };
-
-    const addStuff = async () => {};
-
-    const onSubmitStuff = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const response = await customFetch("/api/stuff", {
-            method: stuff?.id ? "PUT" : "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(stuff),
-        });
-
-        if (response.ok) {
-            const addedStuff: StuffProps = await response.json();
-
-            setStuff({ name: "", summary: "" } as StuffProps);
-            // stuffSubmitCallback(addedStuff);
-            onClose();
+    useEffect(() => {
+        if (stuff) {
+            setValue("id", stuff.id);
+            setValue("name", stuff.name);
+            setValue("summary", stuff.summary);
+            setValue("url", stuff.url);
+            setValue("createdAt", stuff.createdAt);
+            setValue("userId", stuff.userId);
         }
-    };
-
-    const deleteStuff = async () => {
-        const response = await customFetch("/api/stuff", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(stuff),
-        });
-        onClose();
-    };
-
+    }, [stuff]);
     return (
         <>
             {stuff && (
-                <form onSubmit={onSubmitStuff}>
+                <form>
+                    <input type="hidden" defaultValue="" {...register("url")} />
+                    <input type="hidden" defaultValue="" {...register("id")} />
+                    <input
+                        type="hidden"
+                        defaultValue=""
+                        {...register("createAt")}
+                    />
+
                     <Modal isOpen={isOpen} onClose={onClose}>
                         <>
                             <ModalHeader>
@@ -90,9 +124,8 @@ const StuffModal = () => {
                                             <input
                                                 className="w-full bg-transparent focus:outline-none"
                                                 type="text"
-                                                value={stuff.name}
-                                                onChange={onChangeStuff}
-                                                name="name"
+                                                defaultValue=""
+                                                {...register("name")}
                                             />
                                         </div>
                                     </label>
@@ -102,9 +135,8 @@ const StuffModal = () => {
                                             <textarea
                                                 className="w-full py-0.5 pr-1 bg-transparent focus:outline-none"
                                                 rows={3}
-                                                value={stuff.summary}
-                                                onChange={onChangeStuff}
-                                                name="summary"
+                                                defaultValue=""
+                                                {...register("summary")}
                                             />
                                         </div>
                                     </label>
@@ -113,7 +145,7 @@ const StuffModal = () => {
                                         <h4 className="mb-1">사진</h4>
 
                                         <div className="relative flex justify-center items-center pb-[60%] border-2 border-point rounded-lg overflow-hidden hover:bg-main transition-all">
-                                            {stuff.urls ? (
+                                            {watch("url") ? (
                                                 <>
                                                     <div className="absolute inset-0 flex justify-center items-center">
                                                         <svg
@@ -139,8 +171,8 @@ const StuffModal = () => {
                                                     </div>
                                                     <Image
                                                         className="absolute inset-0 w-full h-full object-cover"
-                                                        src={stuff.urls.regular}
-                                                        alt={stuff.name}
+                                                        src={watch("url")}
+                                                        alt={watch("name")}
                                                         width="200"
                                                         height="200"
                                                     />
@@ -177,7 +209,9 @@ const StuffModal = () => {
                                         <button
                                             className="mr-auto"
                                             type="button"
-                                            onClick={deleteStuff}
+                                            onClick={handleSubmit(
+                                                onSubmit(HTTPMethod.DELETE)
+                                            )}
                                         >
                                             삭제
                                         </button>
@@ -185,9 +219,26 @@ const StuffModal = () => {
                                     <button type="button" onClick={onClose}>
                                         닫기
                                     </button>
-                                    <button type="submit">
-                                        {stuff.id ? "수정" : "버리기"}
-                                    </button>
+
+                                    {stuff.id ? (
+                                        <button
+                                            type="button"
+                                            onClick={handleSubmit(
+                                                onSubmit(HTTPMethod.PUT)
+                                            )}
+                                        >
+                                            수정
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={handleSubmit(
+                                                onSubmit(HTTPMethod.POST)
+                                            )}
+                                        >
+                                            버리기
+                                        </button>
+                                    )}
                                 </div>
                             </ModalFooter>
                         </>

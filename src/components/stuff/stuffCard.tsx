@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { StuffProps } from "@/type";
-import { AnimatePresence, motion } from "framer-motion";
 import { Card } from "@/components/card";
 import { useContext } from "react";
 import { StuffModalContext } from "@/provider/stuffModal";
@@ -13,14 +12,14 @@ interface StuffCardProps {
 export const StuffCard = ({ stuff, onClick }: StuffCardProps) => {
     return (
         <Card>
-            <motion.button
+            <button
                 className="relative flex md:flex-col gap-4 w-full h-full pb-[100%] text-left"
                 type="button"
                 onClick={onClick}
             >
                 <Image
                     className="absolute w-full h-full object-cover"
-                    src={stuff.urls.regular}
+                    src={stuff.url}
                     alt={stuff.name}
                     width={200}
                     height={200}
@@ -39,7 +38,7 @@ export const StuffCard = ({ stuff, onClick }: StuffCardProps) => {
                         ).toLocaleDateString()}
                     </span>
                 </div>
-            </motion.button>
+            </button>
         </Card>
     );
 };
@@ -79,38 +78,18 @@ export const LoadingStuffCardUl = () => {
     );
 };
 
-export const StuffCardLiVariants = {
-    hidden: { y: 40, opacity: 0 },
-    visible: {
-        y: 0,
-        opacity: 1,
-    },
-};
-
-export const StuffCardUlVariants = {
-    visible: {
-        transition: {
-            delayChildren: 0.3,
-            staggerChildren: 0.2,
-        },
-    },
-};
-
 export const StuffCardUl = ({
     children,
 }: {
     children?: React.ReactElement | null;
 }) => {
     return (
-        <motion.ul
+        <ul
             className="grid grid-cols-2 gap-4 md:flex-row sm:grid-cols-3 lg:grid-cols-4"
             key="today-stuff-list"
-            initial="hidden"
-            animate="visible"
-            variants={StuffCardUlVariants}
         >
-            <AnimatePresence>{children}</AnimatePresence>
-        </motion.ul>
+            {children}
+        </ul>
     );
 };
 
@@ -124,21 +103,16 @@ export const StuffCardLi = ({ stuffList }: { stuffList: StuffProps[] }) => {
     return stuffList.length === 0 ? (
         <p>조회된 물건이 없습니다.</p>
     ) : (
-        stuffList.map((stuff: StuffProps, index: number) => {
+        stuffList?.map((stuff: StuffProps, index: number) => {
             return (
-                <motion.li
-                    key={index}
-                    variants={StuffCardLiVariants}
-                    layout
-                    layoutId={stuff.id}
-                >
+                <li key={index}>
                     <StuffCard
                         stuff={stuff}
                         onClick={() => {
                             openEditStuffModal(stuff);
                         }}
                     />
-                </motion.li>
+                </li>
             );
         })
     );

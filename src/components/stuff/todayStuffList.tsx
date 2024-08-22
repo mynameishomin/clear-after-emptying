@@ -1,10 +1,6 @@
 import { useContext } from "react";
 import { StuffProps } from "@/type";
-import { motion } from "framer-motion";
-import {
-    LoadingStuffCardUl,
-    StuffCardLiVariants,
-} from "@/components/stuff/stuffCard";
+import { LoadingStuffCardUl } from "@/components/stuff/stuffCard";
 import StuffCardList from "./stuffCardList";
 import { StuffModalContext } from "@/provider/stuffModal";
 import { StuffContext } from "@/provider/stuff";
