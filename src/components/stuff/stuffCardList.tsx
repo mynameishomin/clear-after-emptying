@@ -1,7 +1,5 @@
 import { StuffProps } from "@/type";
 import { StuffCardLi, StuffCardUl } from "@/components/stuff/stuffCard";
-import { useContext } from "react";
-import { StuffModalContext } from "@/provider/stuffModal";
 
 const StuffCardList = ({
     children,

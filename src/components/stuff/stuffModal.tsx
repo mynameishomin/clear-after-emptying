@@ -82,8 +82,8 @@ const StuffModal = () => {
                     }
                 });
                 onClose();
-                setLoading(false);
             }
+            setLoading(false);
         };
         return onSubmitWithHttpMethod;
     };

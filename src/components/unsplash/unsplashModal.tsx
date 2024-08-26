@@ -39,22 +39,20 @@ const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
             listElement.clientHeight;
 
         if (scrollY < 200) {
-            getPhotoList(keyword || "stuff");
+            getPhotoList(keyword || "stuff", photoList.length / 10 + 1);
         }
     };
 
     const onSearch = async (e: React.FormEvent, keyword: string) => {
         e.preventDefault();
         setPhotoList([]);
-        getPhotoList(keyword);
+        getPhotoList(keyword, 1);
     };
 
-    const getPhotoList = async (keyword: string) => {
+    const getPhotoList = async (keyword: string, page: number) => {
         setIsLoading(true);
         const response = await fetch(
-            `${UNSPLASH_API_PATH}?page=${
-                photoList.length / 10 + 1
-            }&keyword=${keyword}`
+            `${UNSPLASH_API_PATH}?page=${page}&keyword=${keyword}`
         );
         const json = await response.json();
         setPhotoList((prev) => {
@@ -64,7 +62,7 @@ const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
     };
 
     useEffect(() => {
-        getPhotoList("stuff");
+        getPhotoList("stuff", 1);
     }, []);
 
     useEffect(() => {
