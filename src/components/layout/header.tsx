@@ -43,8 +43,12 @@ export const Header = () => {
                             </button> */}
                             <nav className="ml-auto sm:block">
                                 <ul className="flex space-x-2">
+                                    <li className="pr-2 border-r-2 border-point">
+                                        <Link href="/stuff">버린 물건</Link>
+                                    </li>
+
                                     {session ? (
-                                        <li className="p-2">
+                                        <li>
                                             <button
                                                 type="button"
                                                 onClick={() => signOut()}
@@ -53,7 +57,7 @@ export const Header = () => {
                                             </button>
                                         </li>
                                     ) : (
-                                        <li className="p-2">
+                                        <li>
                                             <Link href="/signin">로그인</Link>
                                         </li>
                                     )}

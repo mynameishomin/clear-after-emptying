@@ -3,9 +3,9 @@ import Container from "@/components/layout/container";
 import { site } from "@/variables";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import Image from "next/image";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function Home() {
     return (
@@ -29,9 +29,13 @@ export default function Home() {
                     </section>
 
                     <section className="flex justify-center items-center gap-8 mb-20">
-                        <div>
-                            <div className="w-[600px] h-72 bg-gray-300 rounded-md"></div>
-                        </div>
+                        <Image
+                            className="max-w-xl rounded-md"
+                            src="images/main-image01.jpg"
+                            alt="dddd"
+                            width={1920}
+                            height={1280}
+                        />
                         <div className="flex flex-col items-start">
                             <h2 className="mb-1 text-5xl">비우고 기록하세요</h2>
                             <p className="mb-6">
@@ -71,18 +75,14 @@ export default function Home() {
                                 />
                             </Link>
                         </div>
-                        <div>
-                            <div className="w-[600px] h-72 bg-gray-300 rounded-md"></div>
-                        </div>
+                        <Image
+                            className="max-w-xl rounded-md"
+                            src="images/main-image02.jpg"
+                            alt="dddd"
+                            width={1920}
+                            height={1280}
+                        />
                     </section>
-
-                    {/* {session && (
-                        <div>
-                            <TodayStuffList />
-                            <HistoryStuffList />
-                            <StuffModal />
-                        </div>
-                    )} */}
                 </>
             </Container>
         </div>
