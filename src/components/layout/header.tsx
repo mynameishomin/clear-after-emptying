@@ -41,7 +41,7 @@ export const Header = () => {
                                     icon={faBars}
                                 />
                             </button> */}
-                            <nav className="sm:block">
+                            <nav className="ml-auto sm:block">
                                 <ul className="flex space-x-2">
                                     {session ? (
                                         <li className="p-2">

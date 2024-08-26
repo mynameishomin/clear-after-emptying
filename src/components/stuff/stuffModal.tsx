@@ -9,12 +9,14 @@ import {
     useModal,
 } from "@/components/modal";
 import { StuffProps } from "@/type";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import UnsplashModal from "@/components/unsplash/unsplashModal";
 import { customFetch } from "@/components/customFetch";
 import { StuffModalContext } from "@/provider/stuffModal";
 import { STUFF_API_URL } from "@/variables";
 import { StuffContext } from "@/provider/stuff";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export enum HTTPMethod {
     GET = "GET",
@@ -35,16 +37,19 @@ export interface StuffModalProps {
 }
 
 const StuffModal = () => {
+    const [loading, setLoading] = useState(false);
     const unsplashModal = useModal();
-    const { stuffList, setStuffList } = useContext(StuffContext);
+    const { setStuffList } = useContext(StuffContext);
     const { stuff, isOpen, onClose } = useContext(StuffModalContext);
     const { register, handleSubmit, watch, setValue, reset } =
         useForm<StuffProps>();
+    const router = useRouter();
 
     const onSubmit = (httpMethod: HTTPMethod) => {
         const onSubmitWithHttpMethod: SubmitHandler<StuffProps> = async (
             formData
         ) => {
+            setLoading(true);
             const response = await customFetch(STUFF_API_URL, {
                 method: httpMethod,
                 headers: { "Content-Type": "application/json" },
@@ -76,7 +81,8 @@ const StuffModal = () => {
                             return prevList;
                     }
                 });
-
+                router.replace("/stuff");
+                setLoading(false);
                 reset();
                 onClose();
             }
@@ -98,7 +104,7 @@ const StuffModal = () => {
             setValue("createdAt", stuff.createdAt);
             setValue("userId", stuff.userId);
         }
-    }, [stuff]);
+    }, [stuff, setValue]);
     return (
         <>
             {stuff && (
@@ -241,6 +247,34 @@ const StuffModal = () => {
                                     )}
                                 </div>
                             </ModalFooter>
+                            {loading ? (
+                                <motion.div
+                                    className="absolute inset-0 bg-sub flex justify-center items-center"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                >
+                                    <svg
+                                        className="w-20 animate-spin text-main"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
+                                    </svg>
+                                </motion.div>
+                            ) : null}
                         </>
                     </Modal>
                 </form>

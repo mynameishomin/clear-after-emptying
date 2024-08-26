@@ -63,7 +63,7 @@ export async function POST(request: Request) {
 
     const data = await prisma.stuff.create({
         data: {
-            userId: session?.user.id,
+            userId: session?.user.id as string,
             name: stuff.name,
             summary: stuff.summary,
             url: stuff.url,
@@ -98,9 +98,7 @@ export async function PUT(request: Request) {
         data: {
             summary: updateData.summary,
             name: updateData.name,
-            urls: updateData.urls
-                ? JSON.parse(JSON.stringify(updateData.urls))
-                : undefined,
+            url: updateData.url,
         },
     });
 

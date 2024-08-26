@@ -1,27 +1,13 @@
 "use client";
-import { useContext } from "react";
 import Container from "@/components/layout/container";
-import TodayStuffList from "@/components/stuff/todayStuffList";
 import { site } from "@/variables";
-import { useEffect } from "react";
-import HistoryStuffList from "@/components/stuff/historyStuffList";
-import StuffModal from "@/components/stuff/stuffModal";
-import { useModal } from "@/components/modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
-import { useSession, signIn } from "next-auth/react";
-import Button from "@/components/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-    const stuffModal = useModal();
-
-    const data = useSession();
-    // console.log(data);
-
-    // fetch("/api/stuff");
-
     return (
         <div className="flex flex-col md:justify-center w-full">
             <Container>
@@ -53,9 +39,15 @@ export default function Home() {
                                 비웠는지, 어떤 종류의 물건을, 어떻게 비웠는지 한
                                 눈에 볼 수 있게 정리해줍니다.
                             </p>
-                            <Link href="/stuff">
+                            <Link
+                                className="flex items-center gap-1"
+                                href="/stuff"
+                            >
                                 비우러 가기
-                                <FontAwesomeIcon icon={faArrowRight} />
+                                <FontAwesomeIcon
+                                    className="w-4"
+                                    icon={faArrowRight}
+                                />
                             </Link>
                         </div>
                     </section>
@@ -68,9 +60,15 @@ export default function Home() {
                                 눈에 볼 수 있게 정리해줍니다.
                             </p>
 
-                            <Link href="/stuff">
+                            <Link
+                                className="flex items-center gap-1"
+                                href="/stuff"
+                            >
                                 비우러 가기
-                                <FontAwesomeIcon icon={faArrowRight} />
+                                <FontAwesomeIcon
+                                    className="w-4"
+                                    icon={faArrowRight}
+                                />
                             </Link>
                         </div>
                         <div>
