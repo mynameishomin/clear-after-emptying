@@ -19,7 +19,7 @@ export default function Signup() {
                                 onClick={() =>
                                     signIn("naver", {
                                         redirect: true,
-                                        callbackUrl: "/",
+                                        callbackUrl: "/stuff",
                                     })
                                 }
                             >
@@ -31,21 +31,6 @@ export default function Signup() {
                                     height={32}
                                 />
                                 <span>네이버 로그인</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                className="flex items-center justify-center w-full p-2 rounded-md border-2 border-point transition hover:bg-point hover:text-white"
-                                type="button"
-                            >
-                                <Image
-                                    className="mr-2"
-                                    src="/images/logo/kakao.svg"
-                                    alt="카카오"
-                                    width={32}
-                                    height={32}
-                                />
-                                <span>카카오 로그인 가짜</span>
                             </button>
                         </li>
                     </ul>

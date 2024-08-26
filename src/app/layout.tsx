@@ -9,6 +9,7 @@ import { StuffModalProvider } from "@/provider/stuffModal";
 import { SessionProvider } from "@/provider/session";
 import StuffModal from "@/components/stuff/stuffModal";
 import { StuffProvider } from "@/provider/stuff";
+import { Footer } from "@/components/layout/footer";
 
 const doHyeon = Do_Hyeon({ subsets: ["latin"], weight: "400" });
 
@@ -29,9 +30,12 @@ export default function RootLayout({
                 <SessionProvider>
                     <StuffProvider>
                         <StuffModalProvider>
-                            <div className="w-screen min-h-screen overflow-hidden text-point break-keep">
+                            <div className="w-screen min-h-screen flex flex-col overflow-hidden text-point break-keep">
                                 <Header />
-                                <div className="mt-20">{children}</div>
+                                <main className="flex flex-col w-full grow mt-20">
+                                    {children}
+                                </main>
+                                <Footer />
                             </div>
                         </StuffModalProvider>
                     </StuffProvider>

@@ -8,7 +8,7 @@ export interface ToastsProps {
 export const Toast = ({ toasts }: { toasts: ToastsProps[] }) => {
     return (
         <motion.ul
-            className="fixed inset-0 bottom-auto flex flex-col items-end"
+            className="fixed inset-0 bottom-auto flex flex-col items-end pt-20 pr-4"
             layout
             layoutId="toast-ul"
         >

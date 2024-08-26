@@ -7,7 +7,7 @@ const TodayStuffList = () => {
     const { stuffList } = useContext(StuffContext);
 
     return (
-        <section className="mb-20">
+        <section>
             <h2 className="text-xl mb-4">지금까지 이런 물건을 비웠어요.</h2>
             {stuffList ? (
                 <StuffCardList stuffList={stuffList} />

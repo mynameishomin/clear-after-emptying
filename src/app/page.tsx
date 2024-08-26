@@ -6,8 +6,16 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+    const { data: session } = useSession();
+    const router = useRouter();
+    if (session) {
+        router.push("/stuff");
+        return false;
+    }
     return (
         <div className="flex flex-col md:justify-center w-full">
             <Container>
@@ -28,16 +36,18 @@ export default function Home() {
                         </p>
                     </section>
 
-                    <section className="flex justify-center items-center gap-8 mb-20">
+                    <section className="flex justify-center flex-col items-center gap-8 mb-10 sm:mb-20 sm:flex-row">
                         <Image
-                            className="max-w-xl rounded-md"
+                            className="w-full rounded-md sm:w-1/2"
                             src="images/main-image01.jpg"
                             alt="dddd"
                             width={1920}
                             height={1280}
                         />
-                        <div className="flex flex-col items-start">
-                            <h2 className="mb-1 text-5xl">비우고 기록하세요</h2>
+                        <div className="flex flex-col items-start sm:w-1/2">
+                            <h2 className="mb-1 text-3xl sm:text-5xl">
+                                비우고 기록하세요
+                            </h2>
                             <p className="mb-6">
                                 비움 뒤 맑음은 내가 그동안 얼마나 많은 물건을
                                 비웠는지, 어떤 종류의 물건을, 어떻게 비웠는지 한
@@ -55,15 +65,24 @@ export default function Home() {
                             </Link>
                         </div>
                     </section>
-                    <section className="flex justify-center items-center gap-8 mb-20">
-                        <div className="flex flex-col items-end text-right">
-                            <h2 className="mb-1 text-5xl">비우고 기록하세요</h2>
+
+                    <section className="flex justify-center flex-col items-center gap-8 mb-10 sm:mb-20 sm:flex-row-reverse">
+                        <Image
+                            className="w-full rounded-md sm:w-1/2"
+                            src="images/main-image02.jpg"
+                            alt="dddd"
+                            width={1920}
+                            height={1280}
+                        />
+                        <div className="flex flex-col items-end text-right sm:w-1/2">
+                            <h2 className="mb-1 text-3xl sm:text-5xl">
+                                비우고 기록하세요
+                            </h2>
                             <p className="mb-6">
                                 비움 뒤 맑음은 내가 그동안 얼마나 많은 물건을
                                 비웠는지, 어떤 종류의 물건을, 어떻게 비웠는지 한
                                 눈에 볼 수 있게 정리해줍니다.
                             </p>
-
                             <Link
                                 className="flex items-center gap-1"
                                 href="/stuff"
@@ -75,13 +94,6 @@ export default function Home() {
                                 />
                             </Link>
                         </div>
-                        <Image
-                            className="max-w-xl rounded-md"
-                            src="images/main-image02.jpg"
-                            alt="dddd"
-                            width={1920}
-                            height={1280}
-                        />
                     </section>
                 </>
             </Container>
