@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUnsplash } from "@fortawesome/free-brands-svg-icons";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/modal";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { UNSPLASH_API_PATH } from "@/variables";
 
 interface UnsplashPhotoProps {
@@ -23,25 +23,57 @@ interface UnsplashModalProps {
 }
 
 const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
+    const [isLoading, setIsLoading] = useState(false);
     const [keyword, setKeyword] = useState("");
-    const [photoList, setPhotoList] = useState<null | UnsplashPhotoProps[]>(
-        null
-    );
+    const [photoList, setPhotoList] = useState<UnsplashPhotoProps[]>([]);
+    const photoListRef = useRef<HTMLDivElement>(null);
+
+    const handleScroll = () => {
+        if (isLoading) return false;
+        const listElement = photoListRef.current;
+        if (!listElement) return false;
+
+        const scrollY =
+            listElement.scrollHeight -
+            listElement.scrollTop -
+            listElement.clientHeight;
+
+        if (scrollY < 200) {
+            getPhotoList(keyword || "stuff");
+        }
+    };
 
     const onSearch = async (e: React.FormEvent, keyword: string) => {
         e.preventDefault();
+        setPhotoList([]);
         getPhotoList(keyword);
     };
 
     const getPhotoList = async (keyword: string) => {
-        const response = await fetch(`${UNSPLASH_API_PATH}?keyword=${keyword}`);
+        setIsLoading(true);
+        const response = await fetch(
+            `${UNSPLASH_API_PATH}?page=${
+                photoList.length / 10 + 1
+            }&keyword=${keyword}`
+        );
         const json = await response.json();
-        setPhotoList(json.data.results);
+        setPhotoList((prev) => {
+            return [...prev, ...json.data.results];
+        });
+        setIsLoading(false);
     };
 
     useEffect(() => {
         getPhotoList("stuff");
     }, []);
+
+    useEffect(() => {
+        photoListRef.current?.addEventListener("scroll", handleScroll);
+
+        return () => {
+            photoListRef.current?.removeEventListener("scroll", handleScroll);
+        };
+    }, [photoListRef, isLoading]);
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -83,39 +115,41 @@ const UnsplashModal = ({ isOpen, onClose, onSelect }: UnsplashModalProps) => {
                     </div>
                 </ModalHeader>
                 <ModalBody>
-                    <ul className="grid grid-cols-2 gap-2">
-                        {!photoList || photoList?.length === 0 ? (
-                            <li>검색 결과가 없습니다.</li>
-                        ) : (
-                            photoList?.map((photo) => {
-                                return (
-                                    <li
-                                        className="relative pb-[100%] overflow-hidden rounded-lg border-2 border-point"
-                                        key={photo.id}
-                                    >
-                                        <div className="absolute inset-0">
-                                            <Image
-                                                className="w-full h-full object-cover"
-                                                src={photo.urls.regular}
-                                                alt={photo.alt_description}
-                                                width="200"
-                                                height="200"
-                                            />
-                                        </div>
-                                        <button
-                                            className="absolute bottom-1 right-1 py-px px-2 text-sm rounded-md border-2 border-point bg-sub"
-                                            type="button"
-                                            onClick={() =>
-                                                onSelect(photo.urls.regular)
-                                            }
+                    <div className="overflow-auto h-full" ref={photoListRef}>
+                        <ul className="grid grid-cols-2 gap-2">
+                            {!photoList || photoList?.length === 0 ? (
+                                <li>검색 결과가 없습니다.</li>
+                            ) : (
+                                photoList?.map((photo) => {
+                                    return (
+                                        <li
+                                            className="relative pb-[100%] overflow-hidden rounded-lg border-2 border-point"
+                                            key={photo.id}
                                         >
-                                            선택
-                                        </button>
-                                    </li>
-                                );
-                            })
-                        )}
-                    </ul>
+                                            <div className="absolute inset-0">
+                                                <Image
+                                                    className="w-full h-full object-cover"
+                                                    src={photo.urls.regular}
+                                                    alt={photo.alt_description}
+                                                    width="200"
+                                                    height="200"
+                                                />
+                                            </div>
+                                            <button
+                                                className="absolute bottom-1 right-1 py-px px-2 text-sm rounded-md border-2 border-point bg-sub"
+                                                type="button"
+                                                onClick={() =>
+                                                    onSelect(photo.urls.regular)
+                                                }
+                                            >
+                                                선택
+                                            </button>
+                                        </li>
+                                    );
+                                })
+                            )}
+                        </ul>
+                    </div>
                 </ModalBody>
                 <ModalFooter>
                     <div className="flex justify-end">

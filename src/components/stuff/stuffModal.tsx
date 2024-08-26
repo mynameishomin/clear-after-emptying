@@ -121,7 +121,7 @@ const StuffModal = () => {
                                 <h3 className="text-lg">버릴 물건</h3>
                             </ModalHeader>
                             <ModalBody>
-                                <div className="flex flex-col gap-4">
+                                <div className="flex flex-col gap-4 h-full overflow-auto">
                                     <label className="flex flex-col">
                                         <h4>이름</h4>
                                         <div className="border-b-2 border-point">
